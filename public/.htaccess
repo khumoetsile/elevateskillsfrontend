@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# /backend is the Node.js API — do not send those requests to Angular.
+RewriteCond %{REQUEST_URI} !^/backend
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
