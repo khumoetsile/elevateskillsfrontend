@@ -38,8 +38,12 @@ interface RemoteCourseDto {
   hide_from_catalog?: boolean;
   certification?: string;
   certification_duration?: string;
+  time_limit?: string;
   creation_date?: string;
   lms_url?: string;
+  units?: { id: string; name: string; type: string }[];
+  rules?: string[];
+  prerequisites?: string[];
 }
 
 interface RemoteCategoryDto {
@@ -194,26 +198,128 @@ export class CourseService {
 
   private mapCourse(raw: RemoteCourseDto): Course {
     const id = String(raw.id);
-    const description = (raw.description ?? '').replace(/<[^>]+>/g, '').trim();
+    const fallback = MOCK_COURSES.find((c) => c.id === id);
+    const rawDescription = raw.description ?? '';
+    const plainDescription = this.htmlToPlainText(rawDescription);
+    const parsed = this.parseLmsDescription(rawDescription);
+    const units = (raw.units ?? []).map((u) => ({
+      id: String(u.id),
+      name: (u.name ?? '').trim(),
+      type: (u.type ?? '').trim()
+    }));
+    const unitOutcomes = units.map((u) => u.name).filter(Boolean);
     const lmsUrl =
       raw.lms_url || raw.shared_url || this.lms.courseUrl(id);
 
+    const description =
+      plainDescription ||
+      fallback?.description ||
+      (unitOutcomes.length ? unitOutcomes.join('. ') : '') ||
+      raw.name ||
+      '';
+
     return {
       id,
-      title: raw.name || 'Untitled course',
-      summary: this.firstSentence(description) || raw.name || '',
-      description: description || raw.name || '',
-      image: raw.image || FALLBACK_IMAGE,
-      category: raw.category_slug || 'general',
-      level: this.mapLevel(raw.level),
-      duration: 'Self-paced',
-      delivery: 'Online, self-paced',
-      audience: [],
-      outcomes: [],
-      trainer: undefined,
-      badge: null,
-      lmsUrl
+      title: raw.name || fallback?.title || 'Untitled course',
+      summary:
+        this.firstSentence(plainDescription) ||
+        fallback?.summary ||
+        raw.name ||
+        '',
+      description,
+      descriptionHtml: this.normaliseDescriptionHtml(rawDescription),
+      image: raw.image || fallback?.image || FALLBACK_IMAGE,
+      category: raw.category_slug || fallback?.category || 'general',
+      level: this.mapLevel(raw.level) || fallback?.level || 'Beginner',
+      duration: this.mapDuration(raw.time_limit) || fallback?.duration || 'Self-paced',
+      delivery: this.mapDelivery(raw),
+      audience: parsed.audience.length
+        ? parsed.audience
+        : fallback?.audience ?? [],
+      outcomes: parsed.outcomes.length
+        ? parsed.outcomes
+        : unitOutcomes.length
+          ? unitOutcomes
+          : fallback?.outcomes ?? [],
+      units,
+      rules: raw.rules ?? [],
+      certification: raw.certification || undefined,
+      certificationDuration: raw.certification_duration || undefined,
+      trainer: fallback?.trainer,
+      badge: fallback?.badge ?? null,
+      lmsUrl,
+      price: raw.price ?? fallback?.price ?? ''
     };
+  }
+
+  /** Convert TalentLMS HTML description to readable plain text. */
+  private htmlToPlainText(html: string): string {
+    if (!html) return '';
+    return html
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&amp;/gi, '&')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  /** Light cleanup so TalentLMS HTML renders safely on the detail page. */
+  private normaliseDescriptionHtml(html: string): string | undefined {
+    const trimmed = (html ?? '').trim();
+    if (!trimmed || trimmed === 'null') return undefined;
+    return trimmed
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/\son\w+="[^"]*"/gi, '')
+      .replace(/\son\w+='[^']*'/gi, '');
+  }
+
+  /** Extract numbered learning points and audience hints from LMS copy. */
+  private parseLmsDescription(html: string): { outcomes: string[]; audience: string[] } {
+    const text = this.htmlToPlainText(html);
+    if (!text) return { outcomes: [], audience: [] };
+
+    const outcomes: string[] = [];
+    const numbered = text.match(/(?:^|\n)\s*\d+\.\s+[^\n]+/g) ?? [];
+    for (const line of numbered) {
+      const item = line.replace(/^\s*\d+\.\s+/, '').trim();
+      if (item.length > 8) outcomes.push(item);
+    }
+
+    const audience: string[] = [];
+    const audiencePatterns = [
+      /(?:designed for|ideal for|tailored for|this course is for|perfect for|suitable for)([^.\n]+)/gi
+    ];
+    for (const pattern of audiencePatterns) {
+      let match: RegExpExecArray | null;
+      while ((match = pattern.exec(text)) !== null) {
+        const fragment = match[1]
+          .split(/[,;]|\band\b/i)
+          .map((s) => s.trim())
+          .filter((s) => s.length > 3 && s.length < 120);
+        audience.push(...fragment);
+      }
+    }
+
+    return {
+      outcomes: [...new Set(outcomes)],
+      audience: [...new Set(audience)]
+    };
+  }
+
+  private mapDuration(timeLimit: string | undefined): string {
+    const days = parseInt(String(timeLimit ?? ''), 10);
+    if (!Number.isFinite(days) || days <= 0) return 'Self-paced';
+    return days === 1 ? '1 day access' : `${days} days access`;
+  }
+
+  private mapDelivery(raw: RemoteCourseDto): string {
+    const parts = ['Online, self-paced'];
+    if (raw.certification) {
+      parts.push('Certificate on completion');
+    }
+    return parts.join(' · ');
   }
 
   private mapLevel(level: string | undefined): CourseLevel {

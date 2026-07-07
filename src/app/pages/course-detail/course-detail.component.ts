@@ -4,12 +4,14 @@ import {
   computed,
   inject
 } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, of, switchMap } from 'rxjs';
 
 import { CourseService } from '../../services/course.service';
 import { RegisterInterestService } from '../../services/register-interest.service';
+import { isTalentLmsCourseImage } from '../../utils/course-image';
 import { CourseCardComponent } from '../../components/course-card/course-card.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 
@@ -64,13 +66,12 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
             </div>
 
             <div class="mt-8 flex flex-wrap gap-3">
-              <button
-                type="button"
+              <a
+                [routerLink]="['/checkout', course.id]"
                 class="btn-primary bg-white !text-brand-800 hover:!bg-brand-50"
-                (click)="openEnrol(course.title)"
               >
-                Enrol Now
-              </button>
+                Enrol Now{{ priceSuffix(course.price) }}
+              </a>
               <button type="button" class="btn-outline-white" (click)="openLogin(course.title)">
                 Login to enrol
               </button>
@@ -80,10 +81,28 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
             </div>
           </div>
 
-          <div class="order-first lg:order-last">
-            <div class="aspect-[16/10] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
-              <img [src]="course.image" [alt]="course.title" class="w-full h-full object-cover" />
-            </div>
+          <div class="order-first lg:order-last flex justify-center lg:justify-end">
+            @if (isLmsImage(course.image)) {
+              <div class="w-[240px] shrink-0 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/20">
+                <img
+                  [src]="course.image"
+                  [alt]="course.title"
+                  width="240"
+                  height="160"
+                  decoding="async"
+                  class="block w-full h-auto"
+                />
+              </div>
+            } @else {
+              <div class="w-full max-w-sm aspect-[16/10] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
+                <img
+                  [src]="course.image"
+                  [alt]="course.title"
+                  decoding="async"
+                  class="w-full h-full object-cover"
+                />
+              </div>
+            }
           </div>
         </div>
       </section>
@@ -95,11 +114,19 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
               <h2 class="text-2xl font-extrabold text-slate-900">
                 About this course
               </h2>
-              <p class="mt-3 text-slate-700 leading-relaxed">
-                {{ course.description }}
-              </p>
+              @if (descriptionHtml(course); as html) {
+                <div
+                  class="mt-3 text-slate-700 leading-relaxed prose prose-slate max-w-none [&_br]:block [&_br]:mb-2"
+                  [innerHTML]="html"
+                ></div>
+              } @else {
+                <p class="mt-3 text-slate-700 leading-relaxed">
+                  {{ course.description }}
+                </p>
+              }
             </div>
 
+            @if (course.outcomes.length > 0) {
             <div>
               <h2 class="text-2xl font-extrabold text-slate-900">
                 What you'll learn
@@ -117,7 +144,25 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
                 }
               </ul>
             </div>
+            }
 
+            @if (course.units && course.units.length > 1) {
+            <div>
+              <h2 class="text-2xl font-extrabold text-slate-900">
+                Course content
+              </h2>
+              <ul class="mt-4 space-y-2">
+                @for (unit of course.units; track unit.id) {
+                  <li class="flex gap-3 text-sm text-slate-700">
+                    <span class="text-brand-700">•</span>
+                    {{ unit.name }}
+                  </li>
+                }
+              </ul>
+            </div>
+            }
+
+            @if (course.audience.length > 0) {
             <div>
               <h2 class="text-2xl font-extrabold text-slate-900">
                 Who this course is for
@@ -131,6 +176,23 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
                 }
               </ul>
             </div>
+            }
+
+            @if (course.rules && course.rules.length > 0) {
+            <div>
+              <h2 class="text-2xl font-extrabold text-slate-900">
+                Completion requirements
+              </h2>
+              <ul class="mt-4 space-y-2">
+                @for (rule of course.rules; track rule) {
+                  <li class="flex gap-3 text-sm text-slate-700">
+                    <span class="text-brand-700">•</span>
+                    {{ rule }}
+                  </li>
+                }
+              </ul>
+            </div>
+            }
           </div>
 
           <!-- Sticky enrol card -->
@@ -149,11 +211,23 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
                   <span class="text-slate-500">Delivery</span>
                   <span class="font-semibold text-slate-900 text-right">{{ course.delivery }}</span>
                 </div>
+                @if (priceLabel(course.price); as label) {
+                  <div class="flex items-center justify-between pt-3 border-t border-slate-200">
+                    <span class="text-slate-500">Price</span>
+                    <span class="font-extrabold text-brand-800 text-lg">{{ label }}</span>
+                  </div>
+                }
+                @if (course.certification) {
+                  <div class="flex items-center justify-between">
+                    <span class="text-slate-500">Certificate</span>
+                    <span class="font-semibold text-slate-900 text-right">{{ course.certification }}</span>
+                  </div>
+                }
               </div>
 
-              <button type="button" class="btn-primary w-full mt-6" (click)="openEnrol(course.title)">
+              <a [routerLink]="['/checkout', course.id]" class="btn-primary w-full mt-6 inline-flex justify-center">
                 Enrol Now
-              </button>
+              </a>
               <button type="button" class="btn-secondary w-full mt-3" (click)="openLogin(course.title)">
                 Login to enrol
               </button>
@@ -199,6 +273,7 @@ export class CourseDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly courseService = inject(CourseService);
   private readonly interest = inject(RegisterInterestService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   readonly courseState = toSignal(
     this.route.paramMap.pipe(
@@ -229,11 +304,29 @@ export class CourseDetailComponent {
       .join(' ');
   });
 
-  openEnrol(courseTitle: string): void {
-    this.interest.open({ intent: 'enrol', course: courseTitle });
-  }
-
   openLogin(courseTitle: string): void {
     this.interest.open({ intent: 'login', course: courseTitle });
+  }
+
+  isLmsImage(url: string): boolean {
+    return isTalentLmsCourseImage(url);
+  }
+
+  descriptionHtml(course: { descriptionHtml?: string }): SafeHtml | null {
+    const html = course.descriptionHtml?.trim();
+    if (!html) return null;
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
+  priceLabel(price: string): string {
+    const raw = (price || '').trim();
+    if (!raw || raw === '0' || raw === '0.00') return 'Free';
+    // Already carries a currency marker (e.g. "$14.68") — show as-is.
+    return /^[0-9.,\s]+$/.test(raw) ? `BWP ${raw}` : raw;
+  }
+
+  priceSuffix(price: string): string {
+    const label = this.priceLabel(price);
+    return label === 'Free' ? '' : ` — ${label}`;
   }
 }

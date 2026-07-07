@@ -24,6 +24,30 @@ export const routes: Routes = [
     title: 'Course Detail | Elevate Skills'
   },
   {
+    path: 'checkout/result/:orderId',
+    loadComponent: () =>
+      import('./pages/payment-result/payment-result.component').then(
+        (m) => m.PaymentResultComponent
+      ),
+    title: 'Order Status | Elevate Skills'
+  },
+  {
+    path: 'checkout/:courseId',
+    loadComponent: () =>
+      import('./pages/checkout/checkout.component').then(
+        (m) => m.CheckoutComponent
+      ),
+    title: 'Checkout | Elevate Skills'
+  },
+  {
+    path: 'pay/:orderId',
+    loadComponent: () =>
+      import('./pages/mock-pay/mock-pay.component').then(
+        (m) => m.MockPayComponent
+      ),
+    title: 'Secure Payment | Elevate Skills'
+  },
+  {
     path: 'for-business',
     loadComponent: () =>
       import('./pages/for-business/for-business.component').then(

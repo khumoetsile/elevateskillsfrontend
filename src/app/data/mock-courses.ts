@@ -28,7 +28,8 @@ export const MOCK_COURSES: Course[] = [
     ],
     trainer: 'Elevate Skills Faculty',
     badge: 'Popular',
-    lmsUrl: lmsCourseUrl('101')
+    lmsUrl: lmsCourseUrl('101'),
+    price: ''
   },
   {
     id: 'digital-marketing-essentials',
@@ -56,7 +57,8 @@ export const MOCK_COURSES: Course[] = [
     ],
     trainer: 'Elevate Skills Faculty',
     badge: 'New',
-    lmsUrl: lmsCourseUrl('102')
+    lmsUrl: lmsCourseUrl('102'),
+    price: ''
   },
   {
     id: 'financial-literacy-for-professionals',
@@ -84,7 +86,8 @@ export const MOCK_COURSES: Course[] = [
     ],
     trainer: 'Elevate Skills Faculty',
     badge: 'Popular',
-    lmsUrl: lmsCourseUrl('103')
+    lmsUrl: lmsCourseUrl('103'),
+    price: ''
   },
   {
     id: 'starting-a-small-business',
@@ -112,7 +115,8 @@ export const MOCK_COURSES: Course[] = [
     ],
     trainer: 'Elevate Skills Faculty',
     badge: 'Recommended',
-    lmsUrl: lmsCourseUrl('104')
+    lmsUrl: lmsCourseUrl('104'),
+    price: ''
   },
   {
     id: 'excel-for-the-workplace',
@@ -139,7 +143,8 @@ export const MOCK_COURSES: Course[] = [
     ],
     trainer: 'Elevate Skills Faculty',
     badge: 'Popular',
-    lmsUrl: lmsCourseUrl('105')
+    lmsUrl: lmsCourseUrl('105'),
+    price: ''
   },
   {
     id: 'cyber-security-awareness',
@@ -167,7 +172,8 @@ export const MOCK_COURSES: Course[] = [
     ],
     trainer: 'Elevate Skills Faculty',
     badge: 'New',
-    lmsUrl: lmsCourseUrl('106')
+    lmsUrl: lmsCourseUrl('106'),
+    price: ''
   },
   {
     id: 'customer-service-excellence',
@@ -195,7 +201,8 @@ export const MOCK_COURSES: Course[] = [
     ],
     trainer: 'Elevate Skills Faculty',
     badge: null,
-    lmsUrl: lmsCourseUrl('107')
+    lmsUrl: lmsCourseUrl('107'),
+    price: ''
   },
   {
     id: 'effective-communication-at-work',
@@ -223,6 +230,7 @@ export const MOCK_COURSES: Course[] = [
     ],
     trainer: 'Elevate Skills Faculty',
     badge: 'Recommended',
-    lmsUrl: lmsCourseUrl('108')
+    lmsUrl: lmsCourseUrl('108'),
+    price: ''
   }
 ];

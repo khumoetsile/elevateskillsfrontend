@@ -8,6 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 
 import { Course } from '../../models/course.model';
+import { isTalentLmsCourseImage } from '../../utils/course-image';
 
 @Component({
   selector: 'es-course-card',
@@ -20,22 +21,45 @@ import { Course } from '../../models/course.model';
       <article
         class="card overflow-hidden flex flex-col group h-full"
       >
-        <div class="relative aspect-[16/10] overflow-hidden bg-slate-100">
-          <img
-            [src]="c.image"
-            [alt]="c.title"
-            loading="lazy"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-          @if (c.badge) {
-            <span
-              class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase"
-              [class]="badgeClass()"
-            >
-              {{ c.badge }}
-            </span>
-          }
-        </div>
+        @if (isLmsImage(c.image)) {
+          <div class="relative flex items-center justify-center bg-slate-100 h-[160px]">
+            <img
+              [src]="c.image"
+              [alt]="c.title"
+              width="240"
+              height="160"
+              loading="lazy"
+              decoding="async"
+              class="block w-[240px] max-w-full h-auto"
+            />
+            @if (c.badge) {
+              <span
+                class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase"
+                [class]="badgeClass()"
+              >
+                {{ c.badge }}
+              </span>
+            }
+          </div>
+        } @else {
+          <div class="relative aspect-[16/10] overflow-hidden bg-slate-100">
+            <img
+              [src]="c.image"
+              [alt]="c.title"
+              loading="lazy"
+              decoding="async"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            @if (c.badge) {
+              <span
+                class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase"
+                [class]="badgeClass()"
+              >
+                {{ c.badge }}
+              </span>
+            }
+          </div>
+        }
 
         <div class="p-5 flex flex-col flex-1">
           <span class="chip self-start mb-3">{{ categoryLabel() }}</span>
@@ -140,4 +164,8 @@ export class CourseCardComponent {
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
   });
+
+  isLmsImage(url: string): boolean {
+    return isTalentLmsCourseImage(url);
+  }
 }
