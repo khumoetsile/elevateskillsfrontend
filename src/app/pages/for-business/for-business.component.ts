@@ -9,7 +9,7 @@ import { CONTACT } from '../../config/contact.constants';
   imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="bg-gradient-to-br from-brand-900 to-brand-700 text-white py-14 sm:py-20">
+    <section class="bg-gradient-to-br from-brand-950 to-brand-800 text-white py-14 sm:py-20">
       <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
         <div>
           <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">

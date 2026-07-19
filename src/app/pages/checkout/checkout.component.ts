@@ -30,7 +30,7 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
       </section>
     } @else {
       @if (state.course; as course) {
-      <section class="bg-gradient-to-br from-brand-900 to-brand-700 text-white py-10">
+      <section class="bg-gradient-to-br from-brand-950 to-brand-800 text-white py-10">
         <div class="container-xl">
           <p class="text-xs font-bold uppercase tracking-widest text-brand-200">Checkout</p>
           <h1 class="mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight">

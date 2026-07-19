@@ -69,7 +69,7 @@ import {
               </button>
             } @else {
               @if (intentLabel()) {
-                <p class="mb-4 text-sm font-medium text-brand-700 bg-white rounded-lg px-3 py-2 border border-brand-100">
+                <p class="mb-4 text-sm font-medium text-brand-900 bg-white rounded-lg px-3 py-2 border border-brand-100">
                   {{ intentLabel() }}
                 </p>
               }
@@ -132,7 +132,7 @@ import {
                           [name]="courseFieldName(option)"
                           [ngModel]="isSelected(option)"
                           (ngModelChange)="toggleCourse(option, $event)"
-                          class="mt-0.5 rounded border-slate-300 text-brand-700 focus:ring-brand-600"
+                          class="mt-0.5 rounded border-slate-300 text-brand-900 focus:ring-brand-800"
                         />
                         <span>{{ option }}</span>
                       </label>

@@ -61,7 +61,7 @@ export const routes: Routes = [
       import('./pages/become-trainer/become-trainer.component').then(
         (m) => m.BecomeTrainerComponent
       ),
-    title: 'Become a Trainer | Elevate Skills'
+    title: 'CPD trainers | Elevate Skills'
   },
   {
     path: 'about',

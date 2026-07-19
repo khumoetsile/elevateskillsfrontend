@@ -12,30 +12,30 @@ import { RegisterInterestService } from '../../services/register-interest.servic
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section
-      class="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-brand-700 text-white"
+      class="relative overflow-hidden bg-[linear-gradient(to_right,_#0f172a_0%,_#0f172a_55%,_white_100%)] text-white"
     >
       <div
-        class="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.25),transparent_50%),radial-gradient(ellipse_at_bottom_left,_rgba(255,255,255,0.2),transparent_50%)]"
+        class="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.14),transparent_40%),radial-gradient(ellipse_at_bottom_left,_rgba(255,255,255,0.08),transparent_40%)]"
       ></div>
 
       <div class="container-xl relative py-16 sm:py-20 lg:py-24">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
           <div class="order-2 lg:order-1">
             <span
-              class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide text-white/90 ring-1 ring-white/20"
+              class="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold tracking-wide text-slate-700 ring-1 ring-slate-200"
             >
               Botswana's Online Learning Platform
             </span>
 
             <h1
-              class="mt-5 text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-extrabold leading-tight tracking-tight"
+              class="mt-5 text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-extrabold leading-tight tracking-tight text-white"
             >
               Empowering Skills.<br />
               <span class="text-brand-200">Elevating Potential.</span>
             </h1>
 
             <p
-              class="mt-5 text-base sm:text-lg text-brand-100/90 max-w-2xl leading-relaxed"
+              class="mt-5 text-base sm:text-lg text-slate-100/90 max-w-2xl leading-relaxed"
             >
               Elevate Skills is Botswana's online learning platform for
               individuals, professionals, entrepreneurs, trainers, and
@@ -91,18 +91,18 @@ import { RegisterInterestService } from '../../services/register-interest.servic
             </div>
 
             <div
-              class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-brand-100/80"
+              class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-slate-100/80"
             >
               <div class="flex items-center gap-2">
-                <span class="w-2 h-2 bg-brand-300 rounded-full"></span>
+                <span class="w-2 h-2 bg-white rounded-full"></span>
                 Practical, outcomes-driven learning
               </div>
               <div class="flex items-center gap-2">
-                <span class="w-2 h-2 bg-brand-300 rounded-full"></span>
+                <span class="w-2 h-2 bg-white rounded-full"></span>
                 Flexible, accessible training
               </div>
               <div class="flex items-center gap-2">
-                <span class="w-2 h-2 bg-brand-300 rounded-full"></span>
+                <span class="w-2 h-2 bg-white rounded-full"></span>
                 Built for Botswana
               </div>
             </div>
@@ -123,7 +123,7 @@ import { RegisterInterestService } from '../../services/register-interest.servic
             <div
               class="absolute -bottom-4 left-4 sm:-bottom-6 sm:left-6 bg-white rounded-xl shadow-xl px-5 py-4 border border-white/80 max-w-[220px]"
             >
-              <p class="text-2xl font-extrabold text-brand-700 leading-none">100%</p>
+              <p class="text-2xl font-extrabold text-brand-900 leading-none">100%</p>
               <p class="mt-1 text-sm text-slate-600 leading-snug">
                 Online and flexible learning
               </p>

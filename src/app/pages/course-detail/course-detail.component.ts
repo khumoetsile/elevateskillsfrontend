@@ -31,85 +31,148 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
       </section>
     } @else {
       @if (state.course; as course) {
-      <section class="bg-gradient-to-br from-brand-900 to-brand-700 text-white py-14 sm:py-20">
-        <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div>
-            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20 uppercase">
-              {{ categoryLabel() }}
-            </span>
-            <h1 class="mt-4 text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">
-              {{ course.title }}
-            </h1>
-            <p class="mt-4 text-brand-100 text-lg leading-relaxed">
-              {{ course.summary }}
-            </p>
+      <section class="relative overflow-hidden bg-gradient-to-br from-brand-950 to-brand-800 text-white">
+        <!-- Decorative blurred background derived from the course image (if present) -->
+        @if (course.image) {
+          <img
+            [src]="course.image"
+            aria-hidden="true"
+            decoding="async"
+            class="absolute inset-0 w-full h-full object-cover filter blur-3xl scale-[1.05] opacity-30 pointer-events-none"
+          />
+        }
 
-            <div class="mt-6 flex flex-wrap gap-3 text-sm">
-              <span class="inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/20 px-3 py-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-                {{ course.duration }}
-              </span>
-              <span class="inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/20 px-3 py-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M7 14l3-3 4 4 5-6" />
-                </svg>
-                {{ course.level }}
-              </span>
-              <span class="inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/20 px-3 py-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0v-8m0-4h.01" />
-                </svg>
-                {{ course.delivery }}
-              </span>
+        <div class="relative py-4 sm:py-6">
+          <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-6 items-center min-h-[140px]">
+            <div class="z-10">
+                <h1 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                  {{ course.title }}
+                </h1>
             </div>
 
-            <div class="mt-8 flex flex-wrap gap-3">
-              <a
-                [routerLink]="['/checkout', course.id]"
-                class="btn-primary bg-white !text-brand-800 hover:!bg-brand-50"
-              >
-                Enrol Now{{ priceSuffix(course.price) }}
-              </a>
-              <button type="button" class="btn-outline-white" (click)="openLogin(course.title)">
-                Login to enrol
-              </button>
-              <a routerLink="/courses" class="btn-outline-white">
-                Back to catalog
-              </a>
+            <!-- Visual card: framed image that reads well even when source is small -->
+            <div class="order-first lg:order-last flex justify-center lg:justify-end z-10">
+              @if (isLmsImage(course.image)) {
+                <div class="w-[200px] shrink-0 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/20 bg-white/5">
+                  <img
+                    [src]="course.image"
+                    [alt]="course.title"
+                    width="200"
+                    height="120"
+                    decoding="async"
+                    class="block w-full h-auto"
+                  />
+                </div>
+              } @else {
+                <div class="w-full max-w-sm aspect-[16/10] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20 bg-white/5">
+                  <img
+                    [src]="course.image"
+                    [alt]="course.title"
+                    decoding="async"
+                    class="w-full h-full object-cover"
+                    style="height:120px;"
+                  />
+                </div>
+              }
             </div>
-          </div>
-
-          <div class="order-first lg:order-last flex justify-center lg:justify-end">
-            @if (isLmsImage(course.image)) {
-              <div class="w-[240px] shrink-0 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/20">
-                <img
-                  [src]="course.image"
-                  [alt]="course.title"
-                  width="240"
-                  height="160"
-                  decoding="async"
-                  class="block w-full h-auto"
-                />
-              </div>
-            } @else {
-              <div class="w-full max-w-sm aspect-[16/10] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
-                <img
-                  [src]="course.image"
-                  [alt]="course.title"
-                  decoding="async"
-                  class="w-full h-full object-cover"
-                />
-              </div>
-            }
           </div>
         </div>
       </section>
 
-      <section class="py-14 sm:py-20 bg-brand-50">
-        <div class="container-xl grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <div class="lg:col-span-2 space-y-10">
+      <!-- Moved course meta, summary and CTAs below the banner -->
+      <section class="py-8 sm:py-12 bg-brand-50">
+        <div class="container-xl">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+            <div class="lg:col-span-2">
+              <div class="rounded-[2rem] bg-white/95 p-6 sm:p-8 shadow-sm ring-1 ring-slate-200">
+                <span class="inline-flex items-center gap-2 rounded-full bg-brand-100/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-slate-200 uppercase">
+                  {{ categoryLabel() }}
+                </span>
+
+                <p class="mt-4 text-slate-700 text-lg leading-relaxed">
+                  {{ course.summary }}
+                </p>
+
+                <div class="mt-5 flex flex-wrap gap-3 text-sm">
+                  <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 ring-1 ring-slate-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    {{ course.duration }}
+                  </span>
+                  <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 ring-1 ring-slate-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M7 14l3-3 4 4 5-6" />
+                    </svg>
+                    {{ course.level }}
+                  </span>
+                  <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 ring-1 ring-slate-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0v-8m0-4h.01" />
+                    </svg>
+                    {{ course.delivery }}
+                  </span>
+                </div>
+
+                <div class="mt-7 border-t border-slate-200 pt-6 flex flex-wrap gap-3 items-center">
+                  <a [routerLink]="['/checkout', course.id]" class="btn-primary bg-brand-800 text-white">
+                    Enrol Now{{ priceSuffix(course.price) }}
+                  </a>
+                  <button type="button" class="btn-outline" (click)="openLogin(course.title)">
+                    Login to enrol
+                  </button>
+                  <a routerLink="/courses" class="btn-outline">
+                    Back to catalog
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- right column: enrol card placed next to the summary/actions -->
+            <aside class="lg:col-span-1">
+              <div class="card p-6">
+                <div class="space-y-4 text-sm">
+                  <div class="flex items-center justify-between">
+                    <span class="text-slate-500">Duration</span>
+                    <span class="font-semibold text-slate-900">{{ course.duration }}</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-slate-500">Level</span>
+                    <span class="font-semibold text-slate-900">{{ course.level }}</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-slate-500">Delivery</span>
+                    <span class="font-semibold text-slate-900 text-right">{{ course.delivery }}</span>
+                  </div>
+                  @if (priceLabel(course.price); as label) {
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-200">
+                      <span class="text-slate-500">Price</span>
+                      <span class="font-extrabold text-brand-800 text-lg">{{ label }}</span>
+                    </div>
+                  }
+                  @if (course.certification) {
+                    <div class="flex items-center justify-between">
+                      <span class="text-slate-500">Certificate</span>
+                      <span class="font-semibold text-slate-900 text-right">{{ course.certification }}</span>
+                    </div>
+                  }
+                </div>
+
+                <a [routerLink]="['/checkout', course.id]" class="btn-primary w-full mt-6 inline-flex justify-center">
+                  Enrol Now
+                </a>
+                <button type="button" class="btn-secondary w-full mt-3" (click)="openLogin(course.title)">
+                  Login to enrol
+                </button>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section class="py-14 sm:py-20 bg-slate-50">
+        <div class="container-xl">
+          <div class="space-y-10">
             <div>
               <h2 class="text-2xl font-extrabold text-slate-900">
                 About this course
@@ -194,45 +257,6 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
             </div>
             }
           </div>
-
-          <!-- Sticky enrol card -->
-          <aside class="lg:col-span-1">
-            <div class="card p-6 lg:sticky lg:top-20">
-              <div class="space-y-4 text-sm">
-                <div class="flex items-center justify-between">
-                  <span class="text-slate-500">Duration</span>
-                  <span class="font-semibold text-slate-900">{{ course.duration }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-slate-500">Level</span>
-                  <span class="font-semibold text-slate-900">{{ course.level }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-slate-500">Delivery</span>
-                  <span class="font-semibold text-slate-900 text-right">{{ course.delivery }}</span>
-                </div>
-                @if (priceLabel(course.price); as label) {
-                  <div class="flex items-center justify-between pt-3 border-t border-slate-200">
-                    <span class="text-slate-500">Price</span>
-                    <span class="font-extrabold text-brand-800 text-lg">{{ label }}</span>
-                  </div>
-                }
-                @if (course.certification) {
-                  <div class="flex items-center justify-between">
-                    <span class="text-slate-500">Certificate</span>
-                    <span class="font-semibold text-slate-900 text-right">{{ course.certification }}</span>
-                  </div>
-                }
-              </div>
-
-              <a [routerLink]="['/checkout', course.id]" class="btn-primary w-full mt-6 inline-flex justify-center">
-                Enrol Now
-              </a>
-              <button type="button" class="btn-secondary w-full mt-3" (click)="openLogin(course.title)">
-                Login to enrol
-              </button>
-            </div>
-          </aside>
         </div>
       </section>
 
@@ -318,8 +342,14 @@ export class CourseDetailComponent {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
+  private decodeHtmlEntities(text: string): string {
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
+  }
+
   priceLabel(price: string): string {
-    const raw = (price || '').trim();
+    const raw = this.decodeHtmlEntities((price || '').trim());
     if (!raw || raw === '0' || raw === '0.00') return 'Free';
     // Already carries a currency marker (e.g. "$14.68") — show as-is.
     return /^[0-9.,\s]+$/.test(raw) ? `BWP ${raw}` : raw;

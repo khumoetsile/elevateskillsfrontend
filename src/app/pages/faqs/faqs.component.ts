@@ -12,7 +12,7 @@ interface Faq {
   imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="bg-gradient-to-br from-brand-900 to-brand-700 text-white py-14 sm:py-20">
+    <section class="bg-gradient-to-br from-brand-950 to-brand-800 text-white py-14 sm:py-20">
       <div class="container-xl max-w-3xl">
         <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
           FAQs
@@ -97,8 +97,8 @@ export class FaqsComponent {
       a: 'The learner portal is fully responsive and works on desktop, tablet, and mobile devices.'
     },
     {
-      q: 'Can I become a trainer on Elevate Skills?',
-      a: 'Yes. Visit the "Become a Trainer" page to submit your expertise and course ideas. Our team will review and follow up with next steps.'
+      q: 'Can I become a CPD trainer on Elevate Skills?',
+      a: 'Yes. Visit the "CPD trainers" page to submit your expertise and course ideas. Our team will review and follow up with next steps.'
     },
     {
       q: 'Who do I contact for support?',

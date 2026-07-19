@@ -18,11 +18,11 @@
   }
 
   .btn-primary {
-    @apply btn bg-brand-700 text-white hover:bg-brand-800 focus:ring-brand-600 shadow-sm hover:shadow-md;
+    @apply btn bg-brand-900 text-white hover:bg-brand-950 focus:ring-brand-800 shadow-sm hover:shadow-md;
   }
 
   .btn-secondary {
-    @apply btn bg-white text-brand-700 border border-brand-200 hover:bg-brand-50 focus:ring-brand-600;
+    @apply btn bg-white text-brand-900 border border-brand-200 hover:bg-brand-50 focus:ring-brand-800;
   }
 
   .btn-outline-white {
@@ -34,7 +34,7 @@
   }
 
   .chip {
-    @apply inline-flex items-center gap-1 rounded-full bg-brand-50 text-brand-700 px-3 py-1 text-xs font-semibold;
+    @apply inline-flex items-center gap-1 rounded-full bg-brand-50 text-brand-900 px-3 py-1 text-xs font-semibold;
   }
 
   .section {

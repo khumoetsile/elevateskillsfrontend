@@ -64,7 +64,7 @@ import { isTalentLmsCourseImage } from '../../utils/course-image';
         <div class="p-5 flex flex-col flex-1">
           <span class="chip self-start mb-3">{{ categoryLabel() }}</span>
           <h3
-            class="text-base font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-brand-700 transition"
+            class="text-base font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-brand-900 transition"
           >
             {{ c.title }}
           </h3>
@@ -113,7 +113,7 @@ import { isTalentLmsCourseImage } from '../../utils/course-image';
 
           <a
             [routerLink]="['/courses', c.id]"
-            class="mt-5 inline-flex items-center justify-center font-semibold text-sm text-brand-700 hover:text-brand-800 group/btn self-start"
+            class="mt-5 inline-flex items-center justify-center font-semibold text-sm text-brand-900 hover:text-brand-950 group/btn self-start"
           >
             View Course
             <svg
@@ -147,7 +147,7 @@ export class CourseCardComponent {
     const badge = this.course()?.badge;
     switch (badge) {
       case 'Popular':
-        return 'bg-brand-700 text-white';
+        return 'bg-brand-900 text-white';
       case 'New':
         return 'bg-emerald-600 text-white';
       case 'Recommended':

@@ -32,7 +32,7 @@ import { Testimonial } from '../../models/testimonial.model';
         </blockquote>
         <figcaption class="mt-6 flex items-center gap-3">
           <span
-            class="inline-flex items-center justify-center w-11 h-11 rounded-full bg-brand-100 text-brand-700 font-bold"
+            class="inline-flex items-center justify-center w-11 h-11 rounded-full bg-brand-100 text-brand-900 font-bold"
           >
             {{ t.avatarInitials }}
           </span>

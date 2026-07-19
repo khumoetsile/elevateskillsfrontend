@@ -10,7 +10,7 @@ import { ContactEnquiryType, ContactService } from '../../services/contact.servi
   imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="bg-gradient-to-br from-brand-900 to-brand-700 text-white py-14 sm:py-20">
+    <section class="bg-gradient-to-br from-brand-950 to-brand-800 text-white py-4 sm:py-6 min-h-[140px] flex items-center">
       <div class="container-xl max-w-3xl">
         <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
           Contact
