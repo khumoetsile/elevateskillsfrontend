@@ -9,25 +9,25 @@ import { CONTACT } from '../../config/contact.constants';
   imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="bg-gradient-to-br from-brand-950 to-brand-800 text-white py-14 sm:py-20">
-      <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+    <section class="page-hero">
+      <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
         <div>
           <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
             For Corporates
           </span>
-          <h1 class="mt-4 text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+          <h1 class="mt-3 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
             Train smarter. Track progress.
           </h1>
-          <p class="mt-4 text-brand-100 text-lg leading-relaxed">
+          <p class="mt-2 text-brand-100 text-sm sm:text-base leading-relaxed">
             Build skills that drive performance and scale up.
           </p>
-          <p class="mt-3 text-brand-100 leading-relaxed">
+          <p class="mt-2 text-brand-100 leading-relaxed text-sm sm:text-base">
             Elevate Skills helps organisations deliver practical, scalable, and
             measurable online training for employees, teams, and departments.
             Our platform makes workplace learning easier to manage, easier to
             track, and easier to scale.
           </p>
-          <div class="mt-6 flex flex-wrap gap-3">
+          <div class="mt-4 flex flex-wrap gap-2.5">
             <a [href]="'mailto:' + CONTACT.corporateMailto" class="btn-primary bg-white !text-brand-800 hover:!bg-brand-50">
               Request Demo
             </a>
@@ -36,7 +36,7 @@ import { CONTACT } from '../../config/contact.constants';
             </a>
           </div>
         </div>
-        <div class="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
+        <div class="aspect-[16/10] max-h-52 lg:max-h-60 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
           <img
             src="https://images.unsplash.com/photo-1573164574511-73c773193279?w=1200&auto=format&fit=crop&q=70"
             alt="African professionals in an organisational training session"

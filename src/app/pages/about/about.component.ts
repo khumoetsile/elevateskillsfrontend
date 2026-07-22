@@ -1,25 +1,37 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { BRAND } from '../../config/brand.constants';
+
 @Component({
   selector: 'es-about',
   standalone: true,
   imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="bg-gradient-to-br from-brand-950 to-brand-800 text-white py-4 sm:py-6 min-h-[140px] flex items-center">
-      <div class="container-xl">
-        <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
-          About Elevate Skills
-        </span>
-        <h1 class="mt-4 text-4xl sm:text-5xl font-extrabold tracking-tight max-w-3xl">
-          Empowering Botswana with practical, flexible online skills learning
-        </h1>
-        <p class="mt-4 text-brand-100 text-lg max-w-2xl leading-relaxed">
-          Elevate Skills is designed to help people and organisations build
-          the skills they need to grow — in a flexible, modern, and
-          accessible way.
-        </p>
+    <section class="page-hero">
+      <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
+        <div>
+          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
+            About Elevate Skills
+          </span>
+          <h1 class="mt-3 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight max-w-xl">
+            Empowering Botswana with practical, flexible online skills learning
+          </h1>
+          <p class="mt-2 text-brand-100 text-sm sm:text-base max-w-xl leading-relaxed">
+            Elevate Skills is designed to help people and organisations build
+            the skills they need to grow — in a flexible, modern, and
+            accessible way.
+          </p>
+        </div>
+        <div class="aspect-[16/10] max-h-52 lg:max-h-60 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
+          <img
+            [src]="BRAND.heroAbout"
+            alt="Professionals collaborating in a skills development meeting"
+            class="w-full h-full object-cover"
+            decoding="async"
+          />
+        </div>
       </div>
     </section>
 
@@ -98,6 +110,8 @@ import { RouterLink } from '@angular/router';
   `
 })
 export class AboutComponent {
+  readonly BRAND = BRAND;
+
   readonly values = [
     {
       initial: 'P',

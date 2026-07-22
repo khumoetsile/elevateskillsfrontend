@@ -18,8 +18,8 @@ import { RegisterInterestService } from '../../services/register-interest.servic
         class="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.14),transparent_40%),radial-gradient(ellipse_at_bottom_left,_rgba(255,255,255,0.08),transparent_40%)]"
       ></div>
 
-      <div class="container-xl relative py-16 sm:py-20 lg:py-24">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+      <div class="container-xl relative py-7 sm:py-8 lg:py-9">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
           <div class="order-2 lg:order-1">
             <span
               class="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold tracking-wide text-slate-700 ring-1 ring-slate-200"
@@ -28,24 +28,25 @@ import { RegisterInterestService } from '../../services/register-interest.servic
             </span>
 
             <h1
-              class="mt-5 text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-extrabold leading-tight tracking-tight text-white"
+              class="mt-3 text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-tight tracking-tight text-white"
             >
-              Empowering Skills.<br />
-              <span class="text-brand-200">Elevating Potential.</span>
+              Practical Skills.<br />
+              Flexible Learning.<br />
+              <span class="text-brand-200">Real Growth.</span>
             </h1>
 
             <p
-              class="mt-5 text-base sm:text-lg text-slate-100/90 max-w-2xl leading-relaxed"
+              class="mt-3 text-sm sm:text-base text-slate-100/90 max-w-2xl leading-relaxed"
             >
-              Elevate Skills is Botswana's online learning platform for
-              individuals, professionals, entrepreneurs, trainers, and
-              organisations seeking to build practical, workplace-ready skills
-              through flexible, accessible, and measurable online training.
+              Elevate Skills is Botswana’s online learning platform for individuals,
+              professionals, entrepreneurs, trainers and organisations seeking
+              practical, workplace-ready skills through flexible, accessible and
+              measurable online training.
             </p>
 
             <form
               (ngSubmit)="onSearch()"
-              class="mt-8 bg-white rounded-2xl shadow-xl p-2 sm:p-3 flex flex-col sm:flex-row gap-2"
+              class="mt-4 bg-white rounded-2xl shadow-xl p-2 sm:p-2.5 flex flex-col sm:flex-row gap-2"
             >
               <div class="flex-1 flex items-center gap-3 px-3">
                 <svg
@@ -75,7 +76,7 @@ import { RegisterInterestService } from '../../services/register-interest.servic
               </button>
             </form>
 
-            <div class="mt-8 flex flex-wrap gap-3">
+            <div class="mt-4 flex flex-wrap gap-2.5">
               <a routerLink="/courses" class="btn-primary bg-white !text-brand-800 hover:!bg-brand-50">
                 Browse Courses
               </a>
@@ -90,22 +91,17 @@ import { RegisterInterestService } from '../../services/register-interest.servic
               </a>
             </div>
 
-            <div
-              class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-slate-100/80"
+            <p
+              class="mt-4 text-xs sm:text-sm text-white/90 font-medium tracking-wide"
             >
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 bg-white rounded-full"></span>
-                Practical, outcomes-driven learning
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 bg-white rounded-full"></span>
-                Flexible, accessible training
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 bg-white rounded-full"></span>
-                Built for Botswana
-              </div>
-            </div>
+              Self-Paced Courses
+              <span class="mx-2 text-white/40">|</span>
+              Certificates of Completion
+              <span class="mx-2 text-white/40">|</span>
+              Learn Anywhere, Anytime
+              <span class="mx-2 text-white/40">|</span>
+              Workplace-Ready Skills
+            </p>
           </div>
 
           <div class="relative order-1 lg:order-2 lg:pl-4">

@@ -7,9 +7,9 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   template: `
     <div
       class="flex flex-col items-center justify-center gap-4 text-center"
-      [class.py-12]="!compact()"
-      [class.py-6]="compact()"
-      [class.min-h-[12rem]]="!compact()"
+      [class.py-8]="!compact()"
+      [class.py-3]="compact()"
+      [class.min-h-[8rem]]="!compact()"
       role="status"
       aria-live="polite"
     >

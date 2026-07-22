@@ -1,25 +1,37 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { BRAND } from '../../config/brand.constants';
+
 @Component({
   selector: 'es-become-trainer',
   standalone: true,
   imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="bg-gradient-to-br from-brand-950 to-brand-800 text-white py-4 sm:py-6 min-h-[140px] flex items-center">
-      <div class="container-xl max-w-3xl">
-        <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
-          Partner With Us
-        </span>
-        <h1 class="mt-4 text-4xl sm:text-5xl font-extrabold tracking-tight">
-          CPD trainers on Elevate Skills
-        </h1>
-        <p class="mt-4 text-brand-100 text-lg leading-relaxed">
-          Share your expertise with learners and organisations across Botswana.
-          We partner with subject-matter experts, professionals, and training
-          providers who want to deliver impactful online training.
-        </p>
+    <section class="page-hero">
+      <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
+        <div>
+          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
+            Partner With Us
+          </span>
+          <h1 class="mt-3 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight max-w-xl">
+            For CPD Trainers on Elevate Skills
+          </h1>
+          <p class="mt-2 text-brand-100 text-sm sm:text-base max-w-xl leading-relaxed">
+            Share your expertise with learners and organisations across Botswana.
+            We partner with subject-matter experts, professionals, and training
+            providers who want to deliver impactful online training.
+          </p>
+        </div>
+        <div class="aspect-[16/10] max-h-52 lg:max-h-60 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
+          <img
+            [src]="BRAND.heroAbout"
+            alt="CPD trainers delivering practical online learning"
+            class="w-full h-full object-cover"
+            decoding="async"
+          />
+        </div>
       </div>
     </section>
 
@@ -127,6 +139,7 @@ import { FormsModule } from '@angular/forms';
   `
 })
 export class BecomeTrainerComponent {
+  readonly BRAND = BRAND;
   readonly submitted = signal(false);
 
   form = {

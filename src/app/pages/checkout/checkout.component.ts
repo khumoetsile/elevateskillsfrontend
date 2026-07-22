@@ -13,6 +13,7 @@ import { map, switchMap } from 'rxjs';
 import { CourseService } from '../../services/course.service';
 import { CheckoutService } from '../../services/checkout.service';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { decodeHtmlEntities } from '../../utils/html-entities';
 
 @Component({
   selector: 'es-checkout',
@@ -208,7 +209,7 @@ export class CheckoutComponent {
   readonly priceLabel = computed(() => {
     const course = this.courseState().course;
     if (!course) return '';
-    const raw = (course.price || '').trim();
+    const raw = decodeHtmlEntities((course.price || '').trim());
     if (!raw || raw === '0' || raw === '0.00' || raw === '$0' || raw === '$0.00') return 'Free';
     return /^[0-9.,\s]+$/.test(raw) ? `BWP ${raw}` : raw;
   });

@@ -12,6 +12,7 @@ import { map, of, switchMap } from 'rxjs';
 import { CourseService } from '../../services/course.service';
 import { RegisterInterestService } from '../../services/register-interest.service';
 import { isTalentLmsCourseImage } from '../../utils/course-image';
+import { decodeHtmlEntities } from '../../utils/html-entities';
 import { CourseCardComponent } from '../../components/course-card/course-card.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 
@@ -150,10 +151,10 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
                       <span class="font-extrabold text-brand-800 text-lg">{{ label }}</span>
                     </div>
                   }
-                  @if (course.certification) {
+                  @if (certificateLabel(course.certification); as certLabel) {
                     <div class="flex items-center justify-between">
                       <span class="text-slate-500">Certificate</span>
-                      <span class="font-semibold text-slate-900 text-right">{{ course.certification }}</span>
+                      <span class="font-semibold text-slate-900 text-right">{{ certLabel }}</span>
                     </div>
                   }
                 </div>
@@ -342,14 +343,8 @@ export class CourseDetailComponent {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
-  private decodeHtmlEntities(text: string): string {
-    const textarea = document.createElement('textarea');
-    textarea.innerHTML = text;
-    return textarea.value;
-  }
-
   priceLabel(price: string): string {
-    const raw = this.decodeHtmlEntities((price || '').trim());
+    const raw = decodeHtmlEntities((price || '').trim());
     if (!raw || raw === '0' || raw === '0.00') return 'Free';
     // Already carries a currency marker (e.g. "$14.68") — show as-is.
     return /^[0-9.,\s]+$/.test(raw) ? `BWP ${raw}` : raw;
@@ -358,5 +353,22 @@ export class CourseDetailComponent {
   priceSuffix(price: string): string {
     const label = this.priceLabel(price);
     return label === 'Free' ? '' : ` — ${label}`;
+  }
+
+  /** Public-facing certificate label — hide LMS placeholder names. */
+  certificateLabel(value: string | undefined): string | null {
+    const raw = (value ?? '').trim();
+    if (!raw) return null;
+    const lower = raw.toLowerCase();
+    if (
+      lower.includes('template') ||
+      lower === 'null' ||
+      lower === 'none' ||
+      lower === 'n/a' ||
+      lower === '-'
+    ) {
+      return 'Certificate of completion';
+    }
+    return raw;
   }
 }

@@ -98,7 +98,7 @@ export class FaqsComponent {
     },
     {
       q: 'Can I become a CPD trainer on Elevate Skills?',
-      a: 'Yes. Visit the "CPD trainers" page to submit your expertise and course ideas. Our team will review and follow up with next steps.'
+      a: 'Yes. Visit the "For CPD Trainers" page to submit your expertise and course ideas. Our team will review and follow up with next steps.'
     },
     {
       q: 'Who do I contact for support?',

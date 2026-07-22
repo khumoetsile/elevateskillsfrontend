@@ -14,7 +14,7 @@
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
 
   .btn-primary {
@@ -29,6 +29,10 @@
     @apply btn bg-transparent text-white border border-white/60 hover:bg-white hover:text-brand-800;
   }
 
+  .btn-outline {
+    @apply btn bg-white text-brand-900 border border-slate-300 hover:bg-slate-50 focus:ring-brand-800;
+  }
+
   .btn-ghost {
     @apply btn bg-transparent text-slate-700 hover:bg-slate-100;
   }
@@ -38,11 +42,20 @@
   }
 
   .section {
-    @apply py-16 sm:py-20;
+    @apply py-7 sm:py-9;
+  }
+
+  .page-hero {
+    @apply bg-gradient-to-br from-brand-950 to-brand-800 text-white py-7 sm:py-8;
+  }
+
+  .partner-card {
+    @apply flex h-20 min-w-0 items-center justify-center rounded-2xl border border-slate-200/90 px-5 shadow-sm sm:w-44 sm:px-6;
+    background-color: #f7f7f7;
   }
 
   .container-xl {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    @apply max-w-7xl mx-auto px-4 sm:px-5 lg:px-8;
   }
 
   .input-base {

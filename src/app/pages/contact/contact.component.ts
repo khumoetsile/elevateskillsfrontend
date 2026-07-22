@@ -1,27 +1,39 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { BRAND } from '../../config/brand.constants';
 import { CONTACT } from '../../config/contact.constants';
 import { ContactEnquiryType, ContactService } from '../../services/contact.service';
 
 @Component({
   selector: 'es-contact',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, LoadingSpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="bg-gradient-to-br from-brand-950 to-brand-800 text-white py-4 sm:py-6 min-h-[140px] flex items-center">
-      <div class="container-xl max-w-3xl">
-        <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
-          Contact
-        </span>
-        <h1 class="mt-4 text-4xl sm:text-5xl font-extrabold tracking-tight">
-          Let's talk
-        </h1>
-        <p class="mt-4 text-brand-100 text-lg leading-relaxed">
-          Whether you're a learner, an organisation, or a potential partner —
-          we'd love to hear from you.
-        </p>
+    <section class="page-hero">
+      <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
+        <div>
+          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
+            Contact
+          </span>
+          <h1 class="mt-3 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+            Let's talk
+          </h1>
+          <p class="mt-2 text-brand-100 text-sm sm:text-base max-w-xl leading-relaxed">
+            Whether you're a learner, an organisation, or a potential partner —
+            we'd love to hear from you.
+          </p>
+        </div>
+        <div class="aspect-[16/10] max-h-52 lg:max-h-60 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
+          <img
+            [src]="BRAND.heroContact"
+            alt="Team member ready to help with Elevate Skills enquiries"
+            class="w-full h-full object-cover"
+            decoding="async"
+          />
+        </div>
       </div>
     </section>
 
@@ -101,8 +113,20 @@ import { ContactEnquiryType, ContactService } from '../../services/contact.servi
                     placeholder="How can we help?"
                   ></textarea>
                 </div>
-                <button type="submit" [disabled]="f.invalid || sending()" class="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed">
-                  {{ sending() ? 'Sending...' : 'Send message' }}
+                @if (sending()) {
+                  <es-loading-spinner
+                    message="Sending your message…"
+                    [compact]="true"
+                    size="sm"
+                  />
+                }
+                <button type="submit" [disabled]="f.invalid || sending()" class="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2">
+                  @if (sending()) {
+                    <span class="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" aria-hidden="true"></span>
+                    Sending…
+                  } @else {
+                    Send message
+                  }
                 </button>
                 @if (error()) {
                   <p class="text-sm text-red-600">{{ error() }}</p>
@@ -117,6 +141,7 @@ import { ContactEnquiryType, ContactService } from '../../services/contact.servi
 })
 export class ContactComponent {
   private readonly contactService = inject(ContactService);
+  readonly BRAND = BRAND;
 
   readonly submitted = signal(false);
   readonly sending = signal(false);

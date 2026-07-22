@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { CONTACT } from '../../config/contact.constants';
 import {
   RegisterInterestIntent,
@@ -16,7 +17,7 @@ import {
 @Component({
   selector: 'es-register-interest-modal',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, LoadingSpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (interest.isOpen()) {
@@ -188,12 +189,25 @@ import {
                   <p class="text-sm text-red-600">{{ error() }}</p>
                 }
 
+                @if (sending()) {
+                  <es-loading-spinner
+                    message="Submitting your interest…"
+                    [compact]="true"
+                    size="sm"
+                  />
+                }
+
                 <button
                   type="submit"
                   [disabled]="f.invalid || sending()"
-                  class="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed"
+                  class="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
                 >
-                  {{ sending() ? 'Sending...' : 'Register My Interest' }}
+                  @if (sending()) {
+                    <span class="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" aria-hidden="true"></span>
+                    Sending…
+                  } @else {
+                    Register My Interest
+                  }
                 </button>
                 <p class="text-xs text-slate-500 text-center">
                   Submissions are sent to {{ CONTACT.general }}.

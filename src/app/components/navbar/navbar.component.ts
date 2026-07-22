@@ -218,7 +218,7 @@ export class NavbarComponent {
     { path: '/courses', label: 'Browse Courses' },
 
     { path: '/for-business', label: 'For Corporates' },
-    { path: '/become-a-trainer', label: 'CPD trainers' },
+    { path: '/become-a-trainer', label: 'For CPD Trainers' },
 
     { path: '/about', label: 'About' },
 

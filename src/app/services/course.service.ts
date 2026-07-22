@@ -19,6 +19,7 @@ import { MOCK_COURSES } from '../data/mock-courses';
 import { MOCK_CATEGORIES } from '../data/mock-categories';
 import { MOCK_TESTIMONIALS } from '../data/mock-testimonials';
 import { LmsService } from './lms.service';
+import { decodeHtmlEntities } from '../utils/html-entities';
 
 const { courses: COURSES_API, categories: CATEGORIES_API } = environment.api;
 
@@ -243,12 +244,12 @@ export class CourseService {
           : fallback?.outcomes ?? [],
       units,
       rules: raw.rules ?? [],
-      certification: raw.certification || undefined,
+      certification: this.mapCertification(raw.certification),
       certificationDuration: raw.certification_duration || undefined,
       trainer: fallback?.trainer,
       badge: fallback?.badge ?? null,
       lmsUrl,
-      price: raw.price ?? fallback?.price ?? ''
+      price: decodeHtmlEntities(raw.price ?? fallback?.price ?? '')
     };
   }
 
@@ -316,10 +317,27 @@ export class CourseService {
 
   private mapDelivery(raw: RemoteCourseDto): string {
     const parts = ['Online, self-paced'];
-    if (raw.certification) {
+    if (this.mapCertification(raw.certification)) {
       parts.push('Certificate on completion');
     }
     return parts.join(' · ');
+  }
+
+  /** Normalise LMS certification labels for public display. */
+  private mapCertification(value: string | undefined): string | undefined {
+    const raw = (value ?? '').trim();
+    if (!raw) return undefined;
+    const lower = raw.toLowerCase();
+    if (
+      lower.includes('template') ||
+      lower === 'null' ||
+      lower === 'none' ||
+      lower === 'n/a' ||
+      lower === '-'
+    ) {
+      return 'Certificate of completion';
+    }
+    return raw;
   }
 
   private mapLevel(level: string | undefined): CourseLevel {
