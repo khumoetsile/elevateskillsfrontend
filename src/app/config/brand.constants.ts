@@ -12,6 +12,7 @@ export const BRAND = {
     'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&auto=format&fit=crop&q=70',
   heroAbout:
     'https://images.unsplash.com/photo-1573167101669-476636b96cea?w=1200&auto=format&fit=crop&q=70',
+  heroBecomeTrainer: '/images/hero-become-trainer.jpg',
   heroContact:
     'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1200&auto=format&fit=crop&q=70',
   partners: [

@@ -12,8 +12,11 @@ import { map, switchMap } from 'rxjs';
 
 import { CourseService } from '../../services/course.service';
 import { CheckoutService } from '../../services/checkout.service';
+import { AuthService } from '../../services/auth.service';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { decodeHtmlEntities } from '../../utils/html-entities';
+
+type CheckoutMode = 'new' | 'existing';
 
 @Component({
   selector: 'es-checkout',
@@ -37,16 +40,73 @@ import { decodeHtmlEntities } from '../../utils/html-entities';
           <h1 class="mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight">
             Enrol in {{ course.title }}
           </h1>
+          <p class="mt-2 text-brand-100 text-sm sm:text-base max-w-2xl">
+            @if (mode() === 'existing') {
+              We’ll verify your learner account, then add this course after payment.
+            } @else {
+              Complete checkout to get access. A learner account is created for you if you don’t have one yet.
+            }
+          </p>
         </div>
       </section>
 
       <section class="py-12 bg-brand-50">
         <div class="container-xl grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          <!-- Buyer details -->
           <form class="lg:col-span-2 card p-6 sm:p-8" (ngSubmit)="submit(course.id)" #f="ngForm">
-            <h2 class="text-xl font-extrabold text-slate-900">Your details</h2>
+            @if (!sessionLocked()) {
+              <div
+                class="inline-flex w-full sm:w-auto rounded-xl bg-slate-100 p-1 gap-1"
+                role="tablist"
+                aria-label="Checkout type"
+              >
+                <button
+                  type="button"
+                  role="tab"
+                  class="flex-1 sm:flex-none px-4 py-2.5 rounded-lg text-sm font-semibold transition"
+                  [class.bg-white]="mode() === 'existing'"
+                  [class.text-slate-900]="mode() === 'existing'"
+                  [class.shadow-sm]="mode() === 'existing'"
+                  [class.text-slate-600]="mode() !== 'existing'"
+                  [attr.aria-selected]="mode() === 'existing'"
+                  (click)="setMode('existing')"
+                >
+                  I already have an account
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  class="flex-1 sm:flex-none px-4 py-2.5 rounded-lg text-sm font-semibold transition"
+                  [class.bg-white]="mode() === 'new'"
+                  [class.text-slate-900]="mode() === 'new'"
+                  [class.shadow-sm]="mode() === 'new'"
+                  [class.text-slate-600]="mode() !== 'new'"
+                  [attr.aria-selected]="mode() === 'new'"
+                  (click)="setMode('new')"
+                >
+                  I’m new here
+                </button>
+              </div>
+            }
+
+            <h2 class="mt-6 text-xl font-extrabold text-slate-900">
+              @if (sessionLocked()) {
+                Confirm your enrolment
+              } @else if (mode() === 'existing') {
+                Find your account
+              } @else {
+                Your details
+              }
+            </h2>
             <p class="mt-1 text-sm text-slate-600">
-              We use these details to create your learner account and confirm your enrolment.
+              @if (sessionLocked()) {
+                You’re signed in as <strong>{{ email }}</strong>. Confirm the order details below to
+                enrol this course into your account.
+              } @else if (mode() === 'existing') {
+                Enter the email on your Elevate Skills learner account. We’ll check it against the
+                learning portal before you continue to payment.
+              } @else {
+                We’ll create your learner account and enrol you after payment.
+              }
             </p>
 
             @if (error()) {
@@ -56,91 +116,136 @@ import { decodeHtmlEntities } from '../../utils/html-entities';
             }
 
             <div class="mt-6 space-y-4">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="label-base" for="checkout-first-name">First name *</label>
-                  <input
-                    id="checkout-first-name"
-                    type="text"
-                    name="firstName"
-                    [(ngModel)]="firstName"
-                    required
-                    autocomplete="given-name"
-                    class="input-base"
-                    placeholder="e.g. Kabo"
-                  />
-                </div>
-                <div>
-                  <label class="label-base" for="checkout-last-name">Last name *</label>
-                  <input
-                    id="checkout-last-name"
-                    type="text"
-                    name="lastName"
-                    [(ngModel)]="lastName"
-                    required
-                    autocomplete="family-name"
-                    class="input-base"
-                    placeholder="e.g. Modise"
-                  />
-                </div>
-              </div>
-
               <div>
-                <label class="label-base" for="checkout-email">Email address *</label>
-                <input
-                  id="checkout-email"
-                  type="email"
-                  name="email"
-                  [(ngModel)]="email"
-                  required
-                  autocomplete="email"
-                  class="input-base"
-                  placeholder="you@example.com"
-                />
+                <label class="label-base" for="checkout-email">
+                  {{ mode() === 'existing' ? 'Account email *' : 'Email address *' }}
+                </label>
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <input
+                    id="checkout-email"
+                    type="email"
+                    name="email"
+                    [(ngModel)]="email"
+                    (ngModelChange)="onEmailChange()"
+                    required
+                    autocomplete="email"
+                    class="input-base flex-1"
+                    [readonly]="sessionLocked()"
+                    [placeholder]="mode() === 'existing' ? 'email used for your learner login' : 'you@example.com'"
+                  />
+                  @if (mode() === 'existing' && !sessionLocked()) {
+                    <button
+                      type="button"
+                      class="btn-outline whitespace-nowrap disabled:opacity-60"
+                      [disabled]="lookingUp() || !email.trim()"
+                      (click)="verifyAccount()"
+                    >
+                      {{ lookingUp() ? 'Checking…' : 'Verify account' }}
+                    </button>
+                  }
+                </div>
                 <p class="mt-1.5 text-xs text-slate-500">
-                  Your course access details will be linked to this email.
+                  @if (sessionLocked()) {
+                    Enrolment will be added to this signed-in account.
+                  } @else if (mode() === 'existing') {
+                    Must match the email on your existing learner account.
+                  } @else {
+                    This becomes your account email and course access login.
+                  }
                 </p>
               </div>
 
-              <div>
-                <label class="label-base" for="checkout-phone">Contact number</label>
-                <input
-                  id="checkout-phone"
-                  type="tel"
-                  name="phone"
-                  [(ngModel)]="phone"
-                  autocomplete="tel"
-                  class="input-base"
-                  placeholder="+267 71 234 567"
-                />
-              </div>
+              @if (mode() === 'existing' && verified() && !sessionLocked()) {
+                <div class="rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-900 px-4 py-3 text-sm">
+                  Account found
+                  @if (verifiedLogin()) {
+                    <span> (username: <strong>{{ verifiedLogin() }}</strong>)</span>
+                  }
+                  . Continue to enrol this course into that account.
+                </div>
+              }
+
+              @if (mode() === 'new' || verified()) {
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="label-base" for="checkout-first-name">
+                      {{ mode() === 'existing' ? 'First name (for this order) *' : 'First name *' }}
+                    </label>
+                    <input
+                      id="checkout-first-name"
+                      type="text"
+                      name="firstName"
+                      [(ngModel)]="firstName"
+                      required
+                      autocomplete="given-name"
+                      class="input-base"
+                      placeholder="e.g. Kabo"
+                    />
+                  </div>
+                  <div>
+                    <label class="label-base" for="checkout-last-name">
+                      {{ mode() === 'existing' ? 'Last name (for this order) *' : 'Last name *' }}
+                    </label>
+                    <input
+                      id="checkout-last-name"
+                      type="text"
+                      name="lastName"
+                      [(ngModel)]="lastName"
+                      required
+                      autocomplete="family-name"
+                      class="input-base"
+                      placeholder="e.g. Modise"
+                    />
+                  </div>
+                </div>
+
+                @if (mode() === 'new') {
+                  <div>
+                    <label class="label-base" for="checkout-phone">Contact number</label>
+                    <input
+                      id="checkout-phone"
+                      type="tel"
+                      name="phone"
+                      [(ngModel)]="phone"
+                      autocomplete="tel"
+                      class="input-base"
+                      placeholder="+267 77608200"
+                    />
+                  </div>
+                }
+
+                <label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    name="consent"
+                    [(ngModel)]="consent"
+                    required
+                    class="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-700 focus:ring-brand-600"
+                  />
+                  <span>
+                    I have read the
+                    <a routerLink="/privacy" target="_blank" class="text-brand-700 font-semibold hover:underline">Privacy Notice</a>
+                    and agree to the
+                    <a routerLink="/terms" target="_blank" class="text-brand-700 font-semibold hover:underline">Terms and Conditions</a>.
+                    @if (mode() === 'existing') {
+                      I consent to Elevate Skills processing this order and enrolling me in this course. *
+                    } @else {
+                      I consent to Elevate Skills creating my learner account and enrolling me in this course. *
+                    }
+                  </span>
+                </label>
+
+                <button
+                  type="submit"
+                  class="btn-primary w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
+                  [disabled]="submitting() || f.invalid || (mode() === 'existing' && !verified())"
+                >
+                  {{ submitLabel() }}
+                </button>
+              }
             </div>
-
-            <label class="mt-6 flex items-start gap-3 cursor-pointer text-sm text-slate-700">
-              <input
-                type="checkbox"
-                name="consent"
-                [(ngModel)]="consent"
-                required
-                class="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-700 focus:ring-brand-600"
-              />
-              <span>
-                I agree to the
-                <a routerLink="/terms" class="text-brand-700 font-semibold hover:underline">Terms and Conditions</a>
-                and consent to my details being used to create my learner account. *
-              </span>
-            </label>
-
-            <button
-              type="submit"
-              class="btn-primary w-full sm:w-auto mt-8 disabled:opacity-60 disabled:cursor-not-allowed"
-              [disabled]="submitting() || f.invalid"
-            >
-              {{ submitLabel() }}
-            </button>
           </form>
 
-          <!-- Order summary -->
           <aside class="lg:col-span-1">
             <div class="card p-6 lg:sticky lg:top-20">
               <h2 class="text-sm font-bold uppercase tracking-widest text-slate-500">Order summary</h2>
@@ -161,11 +266,11 @@ import { decodeHtmlEntities } from '../../utils/html-entities';
               </div>
               <p class="mt-4 text-xs text-slate-500 leading-relaxed">
                 @if (isFree()) {
-                  No payment required. After confirming your details you will be enrolled automatically
-                  and emailed your access information.
+                  No payment required. After confirming your details you will be enrolled automatically.
+                } @else if (mode() === 'existing') {
+                  After your account is verified and payment succeeds, this course is added to that account.
                 } @else {
-                  Payment is processed securely. After a successful payment you are automatically
-                  enrolled and emailed your access details.
+                  Payment is processed securely. After payment you are enrolled and emailed access details.
                 }
               </p>
             </div>
@@ -188,6 +293,7 @@ export class CheckoutComponent {
   private readonly router = inject(Router);
   private readonly courseService = inject(CourseService);
   private readonly checkout = inject(CheckoutService);
+  private readonly auth = inject(AuthService);
 
   firstName = '';
   lastName = '';
@@ -195,7 +301,12 @@ export class CheckoutComponent {
   phone = '';
   consent = false;
 
+  readonly mode = signal<CheckoutMode>('new');
+  readonly sessionLocked = signal(false);
   readonly submitting = signal(false);
+  readonly lookingUp = signal(false);
+  readonly verified = signal(false);
+  readonly verifiedLogin = signal<string | null>(null);
   readonly error = signal('');
 
   readonly courseState = toSignal(
@@ -206,12 +317,34 @@ export class CheckoutComponent {
     { initialValue: { loading: true, course: undefined } }
   );
 
+  constructor() {
+    const account = this.route.snapshot.queryParamMap.get('account');
+    if (account === 'existing' || account === 'returning') {
+      this.mode.set('existing');
+    }
+
+    const sessionUser = this.auth.user();
+    if (sessionUser) {
+      this.sessionLocked.set(true);
+      this.mode.set('existing');
+      this.email = sessionUser.email;
+      this.firstName = sessionUser.first_name || this.firstName;
+      this.lastName = sessionUser.last_name || this.lastName;
+      // Session already proves the TalentLMS account — skip manual verify.
+      this.verified.set(true);
+      this.verifiedLogin.set(sessionUser.login);
+    }
+  }
+
   readonly priceLabel = computed(() => {
     const course = this.courseState().course;
     if (!course) return '';
-    const raw = decodeHtmlEntities((course.price || '').trim());
-    if (!raw || raw === '0' || raw === '0.00' || raw === '$0' || raw === '$0.00') return 'Free';
-    return /^[0-9.,\s]+$/.test(raw) ? `BWP ${raw}` : raw;
+    const decoded = decodeHtmlEntities((course.price || '').trim());
+    // TalentLMS returns prices with a $ marker regardless of the real
+    // checkout currency — strip any currency symbol and show BWP instead.
+    const numeric = decoded.replace(/[^0-9.,]/g, '').trim();
+    if (!numeric || /^[0.,]+$/.test(numeric)) return 'Free';
+    return `BWP ${numeric}`;
   });
 
   readonly isFree = computed(() => this.priceLabel() === 'Free');
@@ -220,11 +353,78 @@ export class CheckoutComponent {
     if (this.submitting()) {
       return this.isFree() ? 'Completing enrolment…' : 'Preparing payment…';
     }
-    return this.isFree() ? 'Complete enrolment' : 'Continue to payment';
+    if (this.mode() === 'existing') {
+      return this.isFree() ? 'Enrol in this course' : 'Continue to payment';
+    }
+    return this.isFree() ? 'Create account & enrol' : 'Continue to payment';
   });
+
+  setMode(next: CheckoutMode): void {
+    if (this.sessionLocked()) return;
+    this.mode.set(next);
+    this.error.set('');
+    this.verified.set(false);
+    this.verifiedLogin.set(null);
+    this.consent = false;
+  }
+
+  onEmailChange(): void {
+    if (this.mode() === 'existing') {
+      this.verified.set(false);
+      this.verifiedLogin.set(null);
+      this.error.set('');
+    }
+  }
+
+  verifyAccount(): void {
+    const email = this.email.trim();
+    if (!email || this.lookingUp()) return;
+
+    this.lookingUp.set(true);
+    this.error.set('');
+    this.verified.set(false);
+    this.verifiedLogin.set(null);
+
+    this.checkout.lookupAccount(email).subscribe({
+      next: (res) => {
+        this.lookingUp.set(false);
+        if (!res.ok) {
+          this.error.set(res.message || 'Unable to verify this email.');
+          return;
+        }
+        if (!res.exists || !res.account) {
+          this.error.set(
+            res.message ||
+              'No learner account was found for this email. Switch to “I’m new here” to create one, or check the email and try again.'
+          );
+          return;
+        }
+
+        this.verified.set(true);
+        this.verifiedLogin.set(res.account.login);
+        if (!this.firstName.trim() && res.account.first_name) {
+          this.firstName = res.account.first_name;
+        }
+        if (!this.lastName.trim() && res.account.last_name) {
+          this.lastName = res.account.last_name;
+        }
+      },
+      error: (err) => {
+        this.lookingUp.set(false);
+        this.error.set(
+          err?.error?.message || 'Unable to verify this email right now. Please try again shortly.'
+        );
+      }
+    });
+  }
 
   submit(courseId: string): void {
     if (this.submitting()) return;
+    if (this.mode() === 'existing' && !this.verified()) {
+      this.error.set('Please verify your account email before continuing.');
+      return;
+    }
+
     this.error.set('');
     this.submitting.set(true);
 
@@ -235,8 +435,9 @@ export class CheckoutComponent {
         firstName: this.firstName.trim(),
         lastName: this.lastName.trim(),
         email: this.email.trim(),
-        phone: this.phone.trim() || undefined,
+        phone: this.mode() === 'new' ? this.phone.trim() || undefined : undefined,
         consent: this.consent,
+        accountMode: this.mode(),
         courseName: course?.title,
         coursePrice: course?.price
       })
@@ -244,17 +445,49 @@ export class CheckoutComponent {
         next: (res) => {
           this.submitting.set(false);
           if (res.ok && res.payment_url) {
-            this.router.navigateByUrl(res.payment_url);
+            this.openPaymentPage(res.payment_url);
           } else {
             this.error.set(res.message || 'Unable to start checkout. Please try again.');
           }
         },
         error: (err) => {
           this.submitting.set(false);
+          const code = err?.error?.code as string | undefined;
+          if (code === 'account_not_found') {
+            this.verified.set(false);
+          }
+          if (code === 'account_exists') {
+            this.setMode('existing');
+            this.error.set(err?.error?.message || '');
+            return;
+          }
+          if (code === 'already_enrolled') {
+            this.error.set(
+              err?.error?.message ||
+                'You are already enrolled in this course. Open My learning to continue.'
+            );
+            return;
+          }
           this.error.set(
             err?.error?.message || 'Unable to start checkout. Please try again shortly.'
           );
         }
       });
+  }
+
+  private openPaymentPage(paymentUrl: string): void {
+    try {
+      const url = new URL(paymentUrl, window.location.origin);
+      if (url.origin === window.location.origin) {
+        this.router.navigateByUrl(`${url.pathname}${url.search}${url.hash}`);
+        return;
+      }
+      if (url.protocol !== 'https:' || url.hostname !== 'secure.3gdirectpay.com') {
+        throw new Error('Unapproved payment destination');
+      }
+      window.location.assign(url.href);
+    } catch {
+      this.error.set('The secure payment page could not be opened. Please try again.');
+    }
   }
 }

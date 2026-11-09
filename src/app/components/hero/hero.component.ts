@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { BRAND } from '../../config/brand.constants';
-import { RegisterInterestService } from '../../services/register-interest.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'es-hero',
@@ -11,19 +11,13 @@ import { RegisterInterestService } from '../../services/register-interest.servic
   imports: [RouterLink, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section
-      class="relative overflow-hidden bg-[linear-gradient(to_right,_#0f172a_0%,_#0f172a_55%,_white_100%)] text-white"
-    >
-      <div
-        class="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.14),transparent_40%),radial-gradient(ellipse_at_bottom_left,_rgba(255,255,255,0.08),transparent_40%)]"
-      ></div>
+    <section class="page-hero">
+      <div class="page-hero__glow" aria-hidden="true"></div>
 
       <div class="container-xl relative py-7 sm:py-8 lg:py-9">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
           <div class="order-2 lg:order-1">
-            <span
-              class="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold tracking-wide text-slate-700 ring-1 ring-slate-200"
-            >
+            <span class="page-hero__eyebrow">
               Botswana's Online Learning Platform
             </span>
 
@@ -80,12 +74,14 @@ import { RegisterInterestService } from '../../services/register-interest.servic
               <a routerLink="/courses" class="btn-primary bg-white !text-brand-800 hover:!bg-brand-50">
                 Browse Courses
               </a>
-              <button type="button" class="btn-outline-white" (click)="openRegister()">
-                Register
-              </button>
-              <button type="button" class="btn-outline-white" (click)="openLogin()">
-                Login
-              </button>
+              @if (auth.user()) {
+                <button type="button" class="btn-outline-white" (click)="auth.openLearnerPortal()">
+                  My learning
+                </button>
+              } @else {
+                <a routerLink="/register" class="btn-outline-white">Register</a>
+                <a routerLink="/login" class="btn-outline-white">Login</a>
+              }
               <a routerLink="/for-business" class="btn-outline-white">
                 For Corporates
               </a>
@@ -132,18 +128,10 @@ import { RegisterInterestService } from '../../services/register-interest.servic
 })
 export class HeroComponent {
   readonly BRAND = BRAND;
-  private readonly interest = inject(RegisterInterestService);
+  readonly auth = inject(AuthService);
   query = '';
 
   constructor(private readonly router: Router) {}
-
-  openRegister(): void {
-    this.interest.open({ intent: 'register' });
-  }
-
-  openLogin(): void {
-    this.interest.open({ intent: 'login' });
-  }
 
   onSearch(): void {
     const q = this.query.trim();

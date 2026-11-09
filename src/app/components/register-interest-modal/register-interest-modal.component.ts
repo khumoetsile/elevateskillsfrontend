@@ -165,7 +165,9 @@ import {
                     By submitting this form, you agree that Elevate Skills may use the
                     personal details provided only for the purpose of notifying you when
                     the selected courses are ready, sharing relevant course updates, and
-                    contacting you about Elevate Skills learning opportunities.
+                    contacting you about Elevate Skills learning opportunities. Please read our
+                    <a href="/privacy" target="_blank" rel="noopener" class="text-brand-700 font-semibold hover:underline">Privacy Notice</a>
+                    before providing consent.
                   </p>
                   <p class="mt-3 text-sm text-slate-600 leading-relaxed">
                     Your information will not be sold, shared with unauthorised third
@@ -181,7 +183,10 @@ import {
                       required
                       class="mt-0.5 rounded border-slate-300 text-brand-700 focus:ring-brand-600"
                     />
-                    <span>I consent to Elevate Skills contacting me about the courses I selected.</span>
+                    <span>
+                      I have read the Privacy Notice and consent to Elevate Skills contacting me
+                      about the courses I selected.
+                    </span>
                   </label>
                 </fieldset>
 

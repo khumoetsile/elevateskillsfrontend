@@ -5,12 +5,13 @@ import {
   inject
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map, of, switchMap } from 'rxjs';
+import { catchError, map, of, switchMap } from 'rxjs';
 
 import { CourseService } from '../../services/course.service';
-import { RegisterInterestService } from '../../services/register-interest.service';
+import { LmsService } from '../../services/lms.service';
+import { AuthService } from '../../services/auth.service';
 import { isTalentLmsCourseImage } from '../../utils/course-image';
 import { decodeHtmlEntities } from '../../utils/html-entities';
 import { CourseCardComponent } from '../../components/course-card/course-card.component';
@@ -115,16 +116,47 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
                   </span>
                 </div>
 
-                <div class="mt-7 border-t border-slate-200 pt-6 flex flex-wrap gap-3 items-center">
-                  <a [routerLink]="['/checkout', course.id]" class="btn-primary bg-brand-800 text-white">
-                    Enrol Now{{ priceSuffix(course.price) }}
-                  </a>
-                  <button type="button" class="btn-outline" (click)="openLogin(course.title)">
-                    Login to enrol
-                  </button>
-                  <a routerLink="/courses" class="btn-outline">
-                    Back to catalog
-                  </a>
+                <div class="mt-7 border-t border-slate-200 pt-6 space-y-3">
+                  @if (enrolment().loading) {
+                    <p class="text-sm text-slate-500">Checking your enrolment…</p>
+                  } @else if (enrolment().enrolled) {
+                    <div class="rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-900 px-4 py-3 text-sm">
+                      You’re already enrolled in this course
+                      @if (enrolment().progressLabel) {
+                        <span> · {{ enrolment().progressLabel }}</span>
+                      }
+                    </div>
+                    <div class="flex flex-wrap gap-3 items-center">
+                      <button
+                        type="button"
+                        class="btn-primary bg-brand-800 text-white"
+                        (click)="continueCourse()"
+                      >
+                        Continue learning
+                      </button>
+                      <a routerLink="/courses" class="btn-outline">Back to catalog</a>
+                    </div>
+                  } @else {
+                    <div class="flex flex-wrap gap-3 items-center">
+                      <a [routerLink]="['/checkout', course.id]" class="btn-primary bg-brand-800 text-white">
+                        Enrol Now{{ priceSuffix(course.price) }}
+                      </a>
+                      @if (!auth.user()) {
+                        <a
+                          [routerLink]="['/checkout', course.id]"
+                          [queryParams]="{ account: 'existing' }"
+                          class="btn-outline"
+                        >
+                          Already have an account?
+                        </a>
+                      } @else {
+                        <button type="button" class="btn-outline" (click)="openLearning()">
+                          My learning
+                        </button>
+                      }
+                      <a routerLink="/courses" class="btn-outline">Back to catalog</a>
+                    </div>
+                  }
                 </div>
               </div>
             </div>
@@ -145,11 +177,24 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
                     <span class="text-slate-500">Delivery</span>
                     <span class="font-semibold text-slate-900 text-right">{{ course.delivery }}</span>
                   </div>
-                  @if (priceLabel(course.price); as label) {
+                  @if (!enrolment().enrolled) {
+                    @if (priceLabel(course.price); as label) {
+                      <div class="flex items-center justify-between pt-3 border-t border-slate-200">
+                        <span class="text-slate-500">Price</span>
+                        <span class="font-extrabold text-brand-800 text-lg">{{ label }}</span>
+                      </div>
+                    }
+                  } @else {
                     <div class="flex items-center justify-between pt-3 border-t border-slate-200">
-                      <span class="text-slate-500">Price</span>
-                      <span class="font-extrabold text-brand-800 text-lg">{{ label }}</span>
+                      <span class="text-slate-500">Status</span>
+                      <span class="font-extrabold text-emerald-700 text-sm">Enrolled</span>
                     </div>
+                    @if (enrolment().progressLabel) {
+                      <div class="flex items-center justify-between">
+                        <span class="text-slate-500">Progress</span>
+                        <span class="font-semibold text-slate-900">{{ enrolment().progressLabel }}</span>
+                      </div>
+                    }
                   }
                   @if (certificateLabel(course.certification); as certLabel) {
                     <div class="flex items-center justify-between">
@@ -159,12 +204,44 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
                   }
                 </div>
 
-                <a [routerLink]="['/checkout', course.id]" class="btn-primary w-full mt-6 inline-flex justify-center">
-                  Enrol Now
-                </a>
-                <button type="button" class="btn-secondary w-full mt-3" (click)="openLogin(course.title)">
-                  Login to enrol
-                </button>
+                @if (enrolment().loading) {
+                  <p class="mt-6 text-sm text-slate-500 text-center">Checking enrolment…</p>
+                } @else if (enrolment().enrolled) {
+                  <button
+                    type="button"
+                    class="btn-primary w-full mt-6 inline-flex justify-center"
+                    (click)="continueCourse()"
+                  >
+                    Continue learning
+                  </button>
+                } @else {
+                  <a [routerLink]="['/checkout', course.id]" class="btn-primary w-full mt-6 inline-flex justify-center">
+                    Enrol Now
+                  </a>
+                  @if (!auth.user()) {
+                    <a
+                      [routerLink]="['/checkout', course.id]"
+                      [queryParams]="{ account: 'existing' }"
+                      class="btn-secondary w-full mt-3 inline-flex justify-center"
+                    >
+                      Already have an account?
+                    </a>
+                    <a
+                      routerLink="/login"
+                      class="mt-3 block text-center text-xs font-medium text-slate-500 hover:text-brand-700"
+                    >
+                      Or log in first
+                    </a>
+                  } @else {
+                    <button
+                      type="button"
+                      class="btn-secondary w-full mt-3 inline-flex justify-center"
+                      (click)="openLearning()"
+                    >
+                      Open my learning
+                    </button>
+                  }
+                }
               </div>
             </aside>
           </div>
@@ -296,9 +373,79 @@ import { LoadingSpinnerComponent } from '../../components/loading-spinner/loadin
 })
 export class CourseDetailComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly courseService = inject(CourseService);
-  private readonly interest = inject(RegisterInterestService);
   private readonly sanitizer = inject(DomSanitizer);
+  readonly auth = inject(AuthService);
+  readonly lms = inject(LmsService);
+
+  private continueUrl: string | null = null;
+
+  readonly enrolment = toSignal(
+    this.route.paramMap.pipe(
+      map((params) => params.get('id') ?? ''),
+      switchMap((courseId) => {
+        if (!courseId || !this.auth.user()) {
+          return of({
+            loading: false,
+            enrolled: false,
+            progressLabel: null as string | null
+          });
+        }
+        return this.auth.getCourseEnrolment(courseId).pipe(
+          map((res) => {
+            this.continueUrl = res.continue_url || null;
+            return {
+              loading: false,
+              enrolled: Boolean(res.enrolled),
+              progressLabel: this.formatProgress(res.course)
+            };
+          }),
+          catchError(() =>
+            of({
+              loading: false,
+              enrolled: false,
+              progressLabel: null as string | null
+            })
+          )
+        );
+      })
+    ),
+    { initialValue: { loading: true, enrolled: false, progressLabel: null as string | null } }
+  );
+
+  openLearning(): void {
+    if (this.auth.user()) {
+      this.auth.openLearnerPortal();
+      return;
+    }
+    void this.router.navigate(['/login'], {
+      queryParams: { returnUrl: this.router.url }
+    });
+  }
+
+  continueCourse(): void {
+    this.auth.openLearnerPortal(this.continueUrl);
+  }
+
+  private formatProgress(
+    course:
+      | {
+          completion_status: string | null;
+          completion_percentage: string | null;
+        }
+      | null
+      | undefined
+  ): string | null {
+    if (!course) return null;
+    const pct = (course.completion_percentage || '').trim();
+    if (pct && pct !== '0') return `${pct}% complete`;
+    const status = (course.completion_status || '').trim().toLowerCase();
+    if (!status || status === 'not_attempted') return 'Not started';
+    if (status === 'completed') return 'Completed';
+    if (status === 'incomplete') return 'In progress';
+    return status.replace(/_/g, ' ');
+  }
 
   readonly courseState = toSignal(
     this.route.paramMap.pipe(
@@ -329,10 +476,6 @@ export class CourseDetailComponent {
       .join(' ');
   });
 
-  openLogin(courseTitle: string): void {
-    this.interest.open({ intent: 'login', course: courseTitle });
-  }
-
   isLmsImage(url: string): boolean {
     return isTalentLmsCourseImage(url);
   }
@@ -344,10 +487,12 @@ export class CourseDetailComponent {
   }
 
   priceLabel(price: string): string {
-    const raw = decodeHtmlEntities((price || '').trim());
-    if (!raw || raw === '0' || raw === '0.00') return 'Free';
-    // Already carries a currency marker (e.g. "$14.68") — show as-is.
-    return /^[0-9.,\s]+$/.test(raw) ? `BWP ${raw}` : raw;
+    const decoded = decodeHtmlEntities((price || '').trim());
+    // TalentLMS returns prices with a $ marker regardless of the real
+    // checkout currency — strip any currency symbol and show BWP instead.
+    const numeric = decoded.replace(/[^0-9.,]/g, '').trim();
+    if (!numeric || /^[0.,]+$/.test(numeric)) return 'Free';
+    return `BWP ${numeric}`;
   }
 
   priceSuffix(price: string): string {

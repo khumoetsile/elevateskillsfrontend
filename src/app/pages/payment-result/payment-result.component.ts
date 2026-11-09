@@ -92,6 +92,22 @@ const SETTLED = ['completed', 'enrolment_failed', 'payment_failed', 'cancelled']
                 </a>
               </div>
             }
+            @case ('cancelled') {
+              <div class="card p-8 text-center">
+                <div class="w-16 h-16 mx-auto rounded-full bg-slate-100 text-slate-600 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <h1 class="mt-5 text-2xl font-extrabold text-slate-900">Payment cancelled</h1>
+                <p class="mt-2 text-slate-600 text-sm">
+                  Your payment was not completed and you have not been enrolled.
+                </p>
+                <a [routerLink]="['/checkout', o.course.id]" class="btn-primary inline-flex mt-6">
+                  Return to checkout
+                </a>
+              </div>
+            }
             @case ('enrolment_failed') {
               <div class="card p-8 text-center">
                 <div class="w-16 h-16 mx-auto rounded-full bg-amber-100 text-amber-700 flex items-center justify-center">
@@ -131,21 +147,53 @@ export class PaymentResultComponent {
   private readonly checkout = inject(CheckoutService);
 
   private readonly orderId = this.route.snapshot.paramMap.get('orderId') ?? '';
-  private readonly token = this.route.snapshot.queryParamMap.get('token') ?? '';
+  private readonly token = this.readOrderToken();
 
-  // Poll every 2.5s until the order reaches a settled state.
+  private readonly initialVerification = this.orderId && this.token
+    ? this.checkout.verifyDpoPayment(this.orderId, this.token).pipe(catchError(() => of(null)))
+    : of(null);
+
+  // Ask the backend to reconcile once, then poll the local order. The backend
+  // still treats DPO verifyToken—not browser parameters—as payment truth.
   private readonly orderSig = toSignal(
-    timer(0, 2500).pipe(
+    this.initialVerification.pipe(
       switchMap(() =>
-        this.checkout.getOrder(this.orderId, this.token).pipe(
-          map((res) => (res.ok ? res.order : null)),
-          catchError(() => of(null))
+        timer(0, 2500).pipe(
+          switchMap(() =>
+            this.checkout.getOrder(this.orderId, this.token).pipe(
+              map((res) => (res.ok ? res.order : null)),
+              catchError(() => of(null))
+            )
+          ),
+          takeWhile((order) => !order || !SETTLED.includes(order.status), true)
         )
-      ),
-      takeWhile((order) => !order || !SETTLED.includes(order.status), true)
+      )
     ),
     { initialValue: null as OrderView | null }
   );
 
   readonly order = () => this.orderSig();
+
+  constructor() {
+    if (typeof window === 'undefined' || !this.token) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('token');
+    url.hash = '';
+    window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}`);
+  }
+
+  private readOrderToken(): string {
+    if (!this.orderId || typeof window === 'undefined') return '';
+    const storageKey = `es:checkout-order:${this.orderId}`;
+    const fragment = this.route.snapshot.fragment || '';
+    const fragmentToken = new URLSearchParams(fragment).get('token') || '';
+    const queryToken = this.route.snapshot.queryParamMap.get('token') || '';
+    const incoming = fragmentToken || queryToken;
+
+    if (incoming) {
+      window.sessionStorage.setItem(storageKey, incoming);
+      return incoming;
+    }
+    return window.sessionStorage.getItem(storageKey) || '';
+  }
 }

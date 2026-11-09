@@ -1,28 +1,20 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { RegisterInterestService } from '../../services/register-interest.service';
+import { PageHeroComponent } from '../../components/page-hero/page-hero.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'es-how-it-works',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, PageHeroComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="bg-gradient-to-br from-brand-950 to-brand-800 text-white py-14 sm:py-20">
-      <div class="container-xl max-w-3xl">
-        <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
-          How It Works
-        </span>
-        <h1 class="mt-4 text-4xl sm:text-5xl font-extrabold tracking-tight">
-          Your learning journey, simplified
-        </h1>
-        <p class="mt-4 text-brand-100 text-lg leading-relaxed">
-          From discovery to certificate — here's how learners experience
-          Elevate Skills.
-        </p>
-      </div>
-    </section>
+    <es-page-hero
+      eyebrow="How It Works"
+      title="Your learning journey, simplified"
+      description="From discovery to certificate — here's how learners experience Elevate Skills."
+    ></es-page-hero>
 
     <section class="section bg-brand-50">
       <div class="container-xl">
@@ -82,15 +74,21 @@ import { RegisterInterestService } from '../../services/register-interest.servic
         </p>
         <div class="mt-6 flex flex-wrap justify-center gap-3">
           <a routerLink="/courses" class="btn-primary">Browse Courses</a>
-          <button type="button" class="btn-secondary" (click)="openRegister()">Register</button>
-          <button type="button" class="btn-ghost" (click)="openLogin()">Login</button>
+          @if (auth.user()) {
+            <button type="button" class="btn-secondary" (click)="auth.openLearnerPortal()">
+              My learning
+            </button>
+          } @else {
+            <a routerLink="/register" class="btn-secondary">Register</a>
+            <a routerLink="/login" class="btn-ghost">Login</a>
+          }
         </div>
       </div>
     </section>
   `
 })
 export class HowItWorksComponent {
-  private readonly interest = inject(RegisterInterestService);
+  readonly auth = inject(AuthService);
 
   readonly steps = [
     {
@@ -103,13 +101,13 @@ export class HowItWorksComponent {
       number: '02',
       title: 'Register or log in',
       description:
-        'Create an account or sign in via our secure learner portal.'
+        'Create an account on this website, or sign in via our secure learner portal.'
     },
     {
       number: '03',
-      title: 'Learn and earn certificates',
+      title: 'Enrol and learn',
       description:
-        'Complete your courses, track progress, and earn certificates on completion.'
+        'Enrol from the course catalogue (use your existing email if you already have an account), track progress, and earn certificates.'
     }
   ];
 
@@ -123,12 +121,4 @@ export class HowItWorksComponent {
     'Mobile-friendly delivery',
     'Corporate reporting'
   ];
-
-  openRegister(): void {
-    this.interest.open({ intent: 'register' });
-  }
-
-  openLogin(): void {
-    this.interest.open({ intent: 'login' });
-  }
 }

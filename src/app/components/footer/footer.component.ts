@@ -63,7 +63,23 @@ import { CONTACT } from '../../config/contact.constants';
                 <a routerLink="/faqs" class="hover:text-white">FAQs</a>
               </li>
               <li>
+                <a routerLink="/policies" class="hover:text-white">Policies &amp; Data Protection</a>
+              </li>
+              <li>
+                <a routerLink="/privacy" class="hover:text-white">Privacy Notice</a>
+              </li>
+              <li>
                 <a routerLink="/terms" class="hover:text-white">Terms &amp; Conditions</a>
+              </li>
+              <li>
+                <a routerLink="/policies/records-management" class="hover:text-white"
+                  >Records Management</a
+                >
+              </li>
+              <li>
+                <a routerLink="/policies/quality-management" class="hover:text-white"
+                  >Quality Management</a
+                >
               </li>
               <li>
                 <a routerLink="/contact" class="hover:text-white">Contact</a>
@@ -77,6 +93,14 @@ import { CONTACT } from '../../config/contact.constants';
             </h4>
             <ul class="space-y-2 text-sm text-slate-400">
               <li>Gaborone, Botswana</li>
+              <li>
+                <a
+                  [href]="'tel:' + CONTACT.phoneTel"
+                  class="hover:text-white"
+                >
+                  {{ CONTACT.phoneDisplay }}
+                </a>
+              </li>
               <li>
                 <a
                   [href]="'mailto:' + CONTACT.general"
@@ -146,7 +170,11 @@ import { CONTACT } from '../../config/contact.constants';
         >
           <p>&copy; {{ year }} Elevate Skills. All rights reserved.</p>
           <div class="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-1">
-            <a routerLink="/terms" class="hover:text-slate-300">Terms &amp; Conditions</a>
+            <a routerLink="/policies" class="hover:text-slate-300">Policies</a>
+            <span class="hidden sm:inline text-slate-700">·</span>
+            <a routerLink="/privacy" class="hover:text-slate-300">Privacy</a>
+            <span class="hidden sm:inline text-slate-700">·</span>
+            <a routerLink="/terms" class="hover:text-slate-300">Terms</a>
             <span class="hidden sm:inline text-slate-700">·</span>
             <span>Empowering Skills. Elevating Potential.</span>
           </div>

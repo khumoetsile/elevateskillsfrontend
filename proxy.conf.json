@@ -10,6 +10,11 @@
     "secure": false,
     "changeOrigin": true
   },
+  "/api/auth": {
+    "target": "http://localhost:4000",
+    "secure": false,
+    "changeOrigin": true
+  },
   "/api/contact": {
     "target": "http://localhost:4000",
     "secure": false,

@@ -101,7 +101,13 @@ export class CourseService {
     );
 
     this.categories$ = catalogFetch$.pipe(
-      map(({ categories }) => this.mergeCategories(categories))
+      map(({ categories, courses }) => {
+        const catalog = courses && courses.length ? courses : MOCK_COURSES;
+        const populatedIds = new Set(catalog.map((course) => course.category));
+        return this.mergeCategories(categories).filter((category) =>
+          populatedIds.has(category.id)
+        );
+      })
     );
 
     this.courses$ = catalogFetch$.pipe(
@@ -179,8 +185,15 @@ export class CourseService {
   private mergeCategories(remote: Category[]): Category[] {
     if (!remote.length) return MOCK_CATEGORIES;
     const seen = new Set(remote.map((c) => c.id));
-    const extras = MOCK_CATEGORIES.filter((c) => !seen.has(c.id));
+    const names = new Set(remote.map((c) => this.categoryNameKey(c.name)));
+    const extras = MOCK_CATEGORIES.filter(
+      (c) => !seen.has(c.id) && !names.has(this.categoryNameKey(c.name))
+    );
     return [...remote, ...extras];
+  }
+
+  private categoryNameKey(name: string): string {
+    return decodeHtmlEntities(name).trim().toLowerCase().replace(/\s+/g, ' ');
   }
 
   private mapCategory(raw: RemoteCategoryDto): Category {

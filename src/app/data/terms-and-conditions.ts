@@ -9,6 +9,16 @@ export const TERMS_META = {
   territory: 'Botswana and International Markets'
 };
 
+/** Document management controls for these Terms (ES – Terms and Conditions 2026). */
+export const TERMS_DOCUMENT_MANAGEMENT: string[] = [
+  'The Managing Director is responsible for approving all revisions to these Terms and Conditions.',
+  'These Terms and Conditions shall be reviewed annually or whenever changes occur to applicable legislation, business operations, payment processes, or service offerings.',
+  'All amendments shall be documented in the Revision History.',
+  'Superseded versions shall be archived for a minimum of five (5) years.',
+  'The current approved version shall be published on the Elevate Skills website and Learning Management System (LMS).',
+  'Learners shall be deemed to have accepted the current Terms and Conditions upon registration or purchase of a course.'
+];
+
 export interface TermsSubsection {
   title: string;
   paragraphs?: string[];
@@ -376,7 +386,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
     title: 'Personal Information Collected',
     subsections: [
       { title: 'Identity Information', bullets: ['Full names', 'National identity numbers', 'Passport numbers', 'Student numbers', 'Employee numbers'] },
-      { title: 'Contact Information', bullets: ['Email addresses', 'Telephone numbers', 'Postal addresses', 'Physical addresses'] },
+      { title: 'Contact Information', bullets: ['Email addresses', 'Telephone numbers', 'Physical addresses'] },
       { title: 'Educational Information', bullets: ['Academic records', 'Qualifications', 'Certifications', 'Assessment results', 'Attendance records'] },
       { title: 'Employment Information', bullets: ['Employer details', 'Job title', 'Professional experience', 'Sponsorship information'] },
       { title: 'Financial Information', bullets: ['Payment records', 'Billing information', 'Transaction histories'] },

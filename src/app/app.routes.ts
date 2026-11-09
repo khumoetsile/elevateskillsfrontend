@@ -92,10 +92,58 @@ export const routes: Routes = [
     title: 'Contact | Elevate Skills'
   },
   {
+    path: 'policies',
+    loadComponent: () =>
+      import('./pages/policies/policies.component').then((m) => m.PoliciesComponent),
+    title: 'Policies & Data Protection | Elevate Skills'
+  },
+  {
+    path: 'policies/records-management',
+    loadComponent: () =>
+      import('./pages/records-management/records-management.component').then(
+        (m) => m.RecordsManagementComponent
+      ),
+    title: 'Records Management Policy | Elevate Skills'
+  },
+  {
+    path: 'policies/quality-management',
+    loadComponent: () =>
+      import('./pages/quality-management/quality-management.component').then(
+        (m) => m.QualityManagementComponent
+      ),
+    title: 'Quality Management Policy | Elevate Skills'
+  },
+  {
     path: 'terms',
     loadComponent: () =>
       import('./pages/terms/terms.component').then((m) => m.TermsComponent),
     title: 'Terms and Conditions | Elevate Skills'
+  },
+  {
+    path: 'privacy',
+    loadComponent: () =>
+      import('./pages/privacy/privacy.component').then((m) => m.PrivacyComponent),
+    title: 'Privacy Notice | Elevate Skills'
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/login/login.component').then((m) => m.LoginComponent),
+    title: 'Log in | Elevate Skills'
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./pages/register/register.component').then((m) => m.RegisterComponent),
+    title: 'Create Account | Elevate Skills'
+  },
+  {
+    path: 'admin/enquiries',
+    loadComponent: () =>
+      import('./pages/admin-enquiries/admin-enquiries.component').then(
+        (m) => m.AdminEnquiriesComponent
+      ),
+    title: 'Admin Enquiries | Elevate Skills'
   },
   { path: '**', redirectTo: '' }
 ];

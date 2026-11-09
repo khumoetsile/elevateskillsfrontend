@@ -1,39 +1,24 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { PageHeroComponent } from '../../components/page-hero/page-hero.component';
 import { BRAND } from '../../config/brand.constants';
 
 @Component({
   selector: 'es-about',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, PageHeroComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="page-hero">
-      <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-        <div>
-          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
-            About Elevate Skills
-          </span>
-          <h1 class="mt-3 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight max-w-xl">
-            Empowering Botswana with practical, flexible online skills learning
-          </h1>
-          <p class="mt-2 text-brand-100 text-sm sm:text-base max-w-xl leading-relaxed">
-            Elevate Skills is designed to help people and organisations build
-            the skills they need to grow — in a flexible, modern, and
-            accessible way.
-          </p>
-        </div>
-        <div class="aspect-[16/10] max-h-52 lg:max-h-60 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
-          <img
-            [src]="BRAND.heroAbout"
-            alt="Professionals collaborating in a skills development meeting"
-            class="w-full h-full object-cover"
-            decoding="async"
-          />
-        </div>
-      </div>
-    </section>
+    <es-page-hero
+      eyebrow="About Elevate Skills"
+      title="Empowering Botswana with practical, flexible online skills learning"
+      description="Elevate Skills is designed to help people and organisations build the skills they need to grow — in a flexible, modern, and accessible way."
+      [imageSrc]="BRAND.heroAbout"
+      imageAlt="Professionals collaborating in a skills development meeting"
+      statValue="100%"
+      statLabel="Online and flexible learning"
+    ></es-page-hero>
 
     <section class="section bg-brand-50">
       <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -55,8 +40,8 @@ import { BRAND } from '../../config/brand.constants';
         </div>
         <div class="aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
           <img
-            src="https://images.unsplash.com/photo-1573167101669-476636b96cea?w=1200&auto=format&fit=crop&q=70"
-            alt="African women collaborating in a professional meeting"
+            src="https://images.unsplash.com/photo-1573164574572-cb89e39749b4?w=1200&auto=format&fit=crop&q=70"
+            alt="Professionals collaborating during a practical skills workshop"
             class="w-full h-full object-cover"
           />
         </div>

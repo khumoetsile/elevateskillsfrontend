@@ -1,6 +1,6 @@
 # Elevate Skills — Frontend
 
-Angular 19 marketing site for **Elevate Skills**. Course catalog data comes from TalentLMS via the proxy. Login, registration, and learning all happen on **TalentLMS** (`elevateskillsadmin.talentlms.com`).
+Angular 19 marketing site for **Elevate Skills**. Course catalog data comes from TalentLMS via the proxy. Login, registration, and learning all happen on **TalentLMS** (`lms.elevateskills.online`).
 
 ## Run locally
 
@@ -25,8 +25,8 @@ npm start    # http://localhost:4200
 
 | Button | Destination |
 |--------|-------------|
-| Login | `https://elevateskillsadmin.talentlms.com/` |
-| Register | `https://elevateskillsadmin.talentlms.com/index/signup` |
+| Login | `https://lms.elevateskills.online/` |
+| Register | `https://lms.elevateskills.online/index/signup` |
 | Enrol | Course `lms_url` from proxy |
 
 Change the portal URL in `src/environments/environment.ts` and `talentlms-proxy/.env` → `PUBLIC_LMS_URL`.

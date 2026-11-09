@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { PageHeroComponent } from '../../components/page-hero/page-hero.component';
 import { BRAND } from '../../config/brand.constants';
 import { CONTACT } from '../../config/contact.constants';
 import { ContactEnquiryType, ContactService } from '../../services/contact.service';
@@ -9,33 +11,18 @@ import { ContactEnquiryType, ContactService } from '../../services/contact.servi
 @Component({
   selector: 'es-contact',
   standalone: true,
-  imports: [FormsModule, LoadingSpinnerComponent],
+  imports: [FormsModule, RouterLink, LoadingSpinnerComponent, PageHeroComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="page-hero">
-      <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-        <div>
-          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
-            Contact
-          </span>
-          <h1 class="mt-3 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
-            Let's talk
-          </h1>
-          <p class="mt-2 text-brand-100 text-sm sm:text-base max-w-xl leading-relaxed">
-            Whether you're a learner, an organisation, or a potential partner —
-            we'd love to hear from you.
-          </p>
-        </div>
-        <div class="aspect-[16/10] max-h-52 lg:max-h-60 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
-          <img
-            [src]="BRAND.heroContact"
-            alt="Team member ready to help with Elevate Skills enquiries"
-            class="w-full h-full object-cover"
-            decoding="async"
-          />
-        </div>
-      </div>
-    </section>
+    <es-page-hero
+      eyebrow="Contact"
+      title="Let's talk"
+      description="Whether you're a learner, an organisation, or a potential partner — we'd love to hear from you."
+      [imageSrc]="BRAND.heroContact"
+      imageAlt="Team member ready to help with Elevate Skills enquiries"
+      statValue="100%"
+      statLabel="Online and flexible learning"
+    ></es-page-hero>
 
     <section class="section bg-brand-50">
       <div class="container-xl grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -59,6 +46,12 @@ import { ContactEnquiryType, ContactService } from '../../services/contact.servi
               Gaborone, Botswana<br />
               Mon – Fri, 08:00 – 17:00 CAT
             </p>
+            <a
+              [href]="'tel:' + CONTACT.phoneTel"
+              class="mt-3 inline-block text-sm font-semibold text-brand-700 hover:text-brand-800"
+            >
+              {{ CONTACT.phoneDisplay }}
+            </a>
           </div>
         </div>
 
@@ -113,6 +106,20 @@ import { ContactEnquiryType, ContactService } from '../../services/contact.servi
                     placeholder="How can we help?"
                   ></textarea>
                 </div>
+                <label class="flex items-start gap-2 text-sm text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="consent"
+                    [(ngModel)]="form.consent"
+                    required
+                    class="mt-0.5 rounded border-slate-300 text-brand-700 focus:ring-brand-600"
+                  />
+                  <span>
+                    I have read the
+                    <a routerLink="/privacy" target="_blank" class="text-brand-700 font-semibold hover:underline">Privacy Notice</a>
+                    and consent to Elevate Skills processing my enquiry. *
+                  </span>
+                </label>
                 @if (sending()) {
                   <es-loading-spinner
                     message="Sending your message…"
@@ -142,6 +149,7 @@ import { ContactEnquiryType, ContactService } from '../../services/contact.servi
 export class ContactComponent {
   private readonly contactService = inject(ContactService);
   readonly BRAND = BRAND;
+  readonly CONTACT = CONTACT;
 
   readonly submitted = signal(false);
   readonly sending = signal(false);
@@ -152,7 +160,8 @@ export class ContactComponent {
     email: '',
     phone: '',
     type: 'general' as ContactEnquiryType,
-    message: ''
+    message: '',
+    consent: false
   };
 
   readonly contactCards = [
@@ -177,6 +186,7 @@ export class ContactComponent {
   ];
 
   onSubmit(): void {
+    if (!this.form.consent) return;
     this.sending.set(true);
     this.error.set('');
     this.contactService
@@ -185,7 +195,8 @@ export class ContactComponent {
         email: this.form.email.trim(),
         phone: this.form.phone.trim() || undefined,
         type: this.form.type,
-        message: this.form.message.trim()
+        message: this.form.message.trim(),
+        consent: true
       })
       .subscribe({
         next: () => {

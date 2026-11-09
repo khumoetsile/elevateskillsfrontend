@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/cor
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import {
+  TERMS_DOCUMENT_MANAGEMENT,
   TERMS_META,
   TERMS_SECTIONS,
   TermsSection
@@ -15,13 +16,19 @@ import {
   template: `
     <section class="bg-gradient-to-br from-brand-950 to-brand-800 text-white py-14 sm:py-20">
       <div class="container-xl max-w-4xl">
+        <a
+          routerLink="/policies"
+          class="inline-flex items-center gap-2 text-xs font-semibold tracking-wide text-brand-100 hover:text-white"
+        >
+          ← All policies
+        </a>
         <span
-          class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20"
+          class="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20"
         >
           Legal
         </span>
         <h1 class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
-          Enterprise Terms and Conditions
+          Terms and Conditions
         </h1>
         <p class="mt-3 text-brand-100">
           {{ meta.companyName }} · Effective {{ meta.effectiveDate }}
@@ -30,7 +37,7 @@ import {
     </section>
 
     <section class="section bg-slate-50 border-b border-slate-200">
-      <div class="container-xl max-w-4xl">
+      <div class="container-xl max-w-4xl space-y-6">
         <div class="card p-6 sm:p-8">
           <h2 class="text-lg font-bold text-slate-900">Company information</h2>
           <dl class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
@@ -59,6 +66,19 @@ import {
               <dd class="font-medium text-slate-900">{{ meta.website }}</dd>
             </div>
           </dl>
+        </div>
+
+        <div class="card p-6 sm:p-8">
+          <h2 class="text-lg font-bold text-slate-900">Document management</h2>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+            These Terms and Conditions are a controlled legal document of
+            {{ meta.companyName }}.
+          </p>
+          <ul class="mt-4 space-y-2 list-disc pl-5 text-sm text-slate-700">
+            @for (item of documentManagement; track item) {
+              <li class="leading-relaxed">{{ item }}</li>
+            }
+          </ul>
         </div>
       </div>
     </section>
@@ -147,13 +167,9 @@ import {
           </div>
         </div>
 
-        <div class="mt-10 text-center">
-          <p class="text-sm text-slate-600">
-            Questions about these terms?
-          </p>
-          <a routerLink="/contact" class="btn-primary mt-4 inline-flex">
-            Contact Us
-          </a>
+        <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <a routerLink="/policies" class="btn-secondary inline-flex">All policies</a>
+          <a routerLink="/contact" class="btn-primary inline-flex">Contact Us</a>
         </div>
       </div>
     </section>
@@ -163,6 +179,7 @@ export class TermsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   readonly meta = TERMS_META;
+  readonly documentManagement = TERMS_DOCUMENT_MANAGEMENT;
   readonly sections: TermsSection[] = TERMS_SECTIONS;
 
   ngOnInit(): void {

@@ -1,50 +1,52 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { CONTACT } from '../../config/contact.constants';
+import { ContactService } from '../../services/contact.service';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { PageHeroComponent } from '../../components/page-hero/page-hero.component';
 
 @Component({
   selector: 'es-for-business',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink, LoadingSpinnerComponent, PageHeroComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="page-hero">
-      <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-        <div>
-          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
-            For Corporates
-          </span>
-          <h1 class="mt-3 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
-            Train smarter. Track progress.
-          </h1>
-          <p class="mt-2 text-brand-100 text-sm sm:text-base leading-relaxed">
-            Build skills that drive performance and scale up.
-          </p>
-          <p class="mt-2 text-brand-100 leading-relaxed text-sm sm:text-base">
-            Elevate Skills helps organisations deliver practical, scalable, and
-            measurable online training for employees, teams, and departments.
-            Our platform makes workplace learning easier to manage, easier to
-            track, and easier to scale.
-          </p>
-          <div class="mt-4 flex flex-wrap gap-2.5">
-            <a [href]="'mailto:' + CONTACT.corporateMailto" class="btn-primary bg-white !text-brand-800 hover:!bg-brand-50">
-              Request Demo
-            </a>
-            <a [href]="'mailto:' + CONTACT.corporateMailto" class="btn-outline-white">
-              Contact Sales
-            </a>
-          </div>
-        </div>
-        <div class="aspect-[16/10] max-h-52 lg:max-h-60 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
-          <img
-            src="https://images.unsplash.com/photo-1573164574511-73c773193279?w=1200&auto=format&fit=crop&q=70"
-            alt="African professionals in an organisational training session"
-            class="w-full h-full object-cover"
-          />
-        </div>
+    <es-page-hero
+      eyebrow="For Corporates"
+      title="Train smarter. Track progress."
+      description="Elevate Skills helps organisations deliver practical, scalable, and measurable online training for employees, teams, and departments. Our platform makes workplace learning easier to manage, easier to track, and easier to scale."
+      imageSrc="https://images.unsplash.com/photo-1573164574511-73c773193279?w=1200&auto=format&fit=crop&q=70"
+      imageAlt="African professionals in an organisational training session"
+      statValue="100%"
+      statLabel="Online and flexible learning"
+    >
+      <div class="mt-4 flex flex-wrap gap-2.5">
+        <button
+          type="button"
+          class="btn-primary bg-white !text-brand-800 hover:!bg-brand-50"
+          (click)="scrollToEnquiry()"
+        >
+          Request Demo
+        </button>
+        <a
+          [href]="CONTACT.salesWhatsApp"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-outline-white"
+        >
+          Contact Sales
+        </a>
       </div>
-    </section>
+    </es-page-hero>
 
     <section class="section bg-brand-50">
       <div class="container-xl">
@@ -100,9 +102,9 @@ import { CONTACT } from '../../config/contact.constants';
             </ul>
           </div>
 
-          <div id="enquiry" class="card p-8">
+          <div id="enquiry" class="card p-8 scroll-mt-28">
             <h3 class="text-2xl font-extrabold text-slate-900">
-              Request corporate training
+              Request Demo
             </h3>
             <p class="mt-2 text-slate-600 text-sm">
               Tell us about your organisation and we'll come back with a
@@ -111,7 +113,7 @@ import { CONTACT } from '../../config/contact.constants';
 
             @if (submitted()) {
               <div class="mt-6 rounded-lg bg-emerald-50 text-emerald-800 p-4 text-sm">
-                Thanks! We've received your enquiry and will be in touch soon.
+                Thanks! We've received your demo request and will be in touch soon.
               </div>
             } @else {
               <form
@@ -140,27 +142,55 @@ import { CONTACT } from '../../config/contact.constants';
                   </div>
                 </div>
                 <div>
-                  <label class="label-base">Number of learners</label>
-                  <select name="learners" [(ngModel)]="form.learners" class="input-base">
-                    <option value="1-10">1 - 10</option>
-                    <option value="11-50">11 - 50</option>
-                    <option value="51-200">51 - 200</option>
-                    <option value="200+">200+</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="label-base">Tell us about your training needs</label>
+                  <label class="label-base">Tell us about your needs</label>
                   <textarea
                     name="message"
                     rows="4"
                     [(ngModel)]="form.message"
+                    required
                     class="input-base"
                     placeholder="What skills or outcomes are you targeting?"
                   ></textarea>
                 </div>
-                <button type="submit" [disabled]="f.invalid" class="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed">
-                  Submit enquiry
+                <label class="flex items-start gap-2 text-sm text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="consent"
+                    [(ngModel)]="form.consent"
+                    required
+                    class="mt-0.5 rounded border-slate-300 text-brand-700 focus:ring-brand-600"
+                  />
+                  <span>
+                    I have read the
+                    <a routerLink="/privacy" target="_blank" class="text-brand-700 font-semibold hover:underline">Privacy Notice</a>
+                    and consent to Elevate Skills contacting me about this demo request. *
+                  </span>
+                </label>
+                @if (sending()) {
+                  <es-loading-spinner
+                    message="Sending your request…"
+                    [compact]="true"
+                    size="sm"
+                  />
+                }
+                <button
+                  type="submit"
+                  [disabled]="f.invalid || sending()"
+                  class="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                >
+                  @if (sending()) {
+                    <span
+                      class="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin"
+                      aria-hidden="true"
+                    ></span>
+                    Sending…
+                  } @else {
+                    Submit enquiry
+                  }
                 </button>
+                @if (error()) {
+                  <p class="text-sm text-red-600">{{ error() }}</p>
+                }
               </form>
             }
           </div>
@@ -169,17 +199,22 @@ import { CONTACT } from '../../config/contact.constants';
     </section>
   `
 })
-export class ForBusinessComponent {
+export class ForBusinessComponent implements OnInit, AfterViewInit {
+  private readonly contactService = inject(ContactService);
+  private readonly route = inject(ActivatedRoute);
+
   readonly CONTACT = CONTACT;
   readonly submitted = signal(false);
+  readonly sending = signal(false);
+  readonly error = signal('');
 
   form = {
     name: '',
     company: '',
     email: '',
     phone: '',
-    learners: '1-10',
-    message: ''
+    message: '',
+    consent: false
   };
 
   readonly features = [
@@ -224,7 +259,55 @@ export class ForBusinessComponent {
     'Optional add-ons: custom content, SSO, branches'
   ];
 
+  ngOnInit(): void {
+    this.route.fragment.subscribe((fragment) => {
+      if (fragment === 'enquiry') {
+        queueMicrotask(() => this.scrollToEnquiry());
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    if (this.route.snapshot.fragment === 'enquiry') {
+      this.scrollToEnquiry();
+    }
+  }
+
+  scrollToEnquiry(): void {
+    const el = document.getElementById('enquiry');
+    if (!el) {
+      return;
+    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const firstInput = el.querySelector<HTMLInputElement>('input, textarea');
+    firstInput?.focus({ preventScroll: true });
+  }
+
   onSubmit(): void {
-    this.submitted.set(true);
+    if (!this.form.consent) return;
+    this.sending.set(true);
+    this.error.set('');
+    this.contactService
+      .submit({
+        name: this.form.name.trim(),
+        email: this.form.email.trim(),
+        phone: this.form.phone.trim() || undefined,
+        company: this.form.company.trim() || undefined,
+        type: 'demo',
+        message: this.form.message.trim(),
+        consent: true
+      })
+      .subscribe({
+        next: () => {
+          this.sending.set(false);
+          this.submitted.set(true);
+        },
+        error: () => {
+          this.sending.set(false);
+          this.error.set(
+            `Something went wrong. Please try again or email us directly at ${CONTACT.business}.`
+          );
+        }
+      });
   }
 }

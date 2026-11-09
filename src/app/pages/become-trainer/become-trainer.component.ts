@@ -1,39 +1,27 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { BRAND } from '../../config/brand.constants';
+import { ContactService } from '../../services/contact.service';
+import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { PageHeroComponent } from '../../components/page-hero/page-hero.component';
 
 @Component({
   selector: 'es-become-trainer',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink, LoadingSpinnerComponent, PageHeroComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="page-hero">
-      <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-        <div>
-          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
-            Partner With Us
-          </span>
-          <h1 class="mt-3 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight max-w-xl">
-            For CPD Trainers on Elevate Skills
-          </h1>
-          <p class="mt-2 text-brand-100 text-sm sm:text-base max-w-xl leading-relaxed">
-            Share your expertise with learners and organisations across Botswana.
-            We partner with subject-matter experts, professionals, and training
-            providers who want to deliver impactful online training.
-          </p>
-        </div>
-        <div class="aspect-[16/10] max-h-52 lg:max-h-60 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
-          <img
-            [src]="BRAND.heroAbout"
-            alt="CPD trainers delivering practical online learning"
-            class="w-full h-full object-cover"
-            decoding="async"
-          />
-        </div>
-      </div>
-    </section>
+    <es-page-hero
+      eyebrow="Partner With Us"
+      title="For CPD Trainers on Elevate Skills"
+      description="Share your expertise with learners and organisations across Botswana. We partner with subject-matter experts, professionals, and training providers who want to deliver impactful online training."
+      [imageSrc]="BRAND.heroBecomeTrainer"
+      imageAlt="Professional trainer in a modern office overlooking the city"
+      statValue="100%"
+      statLabel="Online and flexible learning"
+    ></es-page-hero>
 
     <section class="section bg-brand-50">
       <div class="container-xl grid grid-cols-1 lg:grid-cols-5 gap-10">
@@ -85,7 +73,7 @@ import { BRAND } from '../../config/brand.constants';
                   </div>
                   <div>
                     <label class="label-base">Email</label>
-                    <input type="email" name="email" [(ngModel)]="form.email" required class="input-base" />
+                    <input type="email" name="email" [(ngModel)]="form.email" required email class="input-base" />
                   </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -127,8 +115,36 @@ import { BRAND } from '../../config/brand.constants';
                     placeholder="Tell us briefly about your background and why you want to teach with Elevate Skills."
                   ></textarea>
                 </div>
-                <button type="submit" [disabled]="f.invalid" class="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed">
-                  Submit Interest
+
+                <label class="flex items-start gap-2 text-sm text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="consent"
+                    [(ngModel)]="form.consent"
+                    required
+                    class="mt-0.5 rounded border-slate-300 text-brand-700 focus:ring-brand-600"
+                  />
+                  <span>
+                    I have read the
+                    <a routerLink="/privacy" target="_blank" class="text-brand-700 font-semibold hover:underline">Privacy Notice</a>
+                    and consent to Elevate Skills processing my application details. *
+                  </span>
+                </label>
+
+                @if (error()) {
+                  <p class="text-sm text-red-600">{{ error() }}</p>
+                }
+
+                @if (sending()) {
+                  <es-loading-spinner message="Submitting…" [compact]="true" size="sm" />
+                }
+
+                <button
+                  type="submit"
+                  [disabled]="f.invalid || sending()"
+                  class="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {{ sending() ? 'Submitting…' : 'Submit Interest' }}
                 </button>
               </form>
             }
@@ -139,8 +155,11 @@ import { BRAND } from '../../config/brand.constants';
   `
 })
 export class BecomeTrainerComponent {
+  private readonly contact = inject(ContactService);
   readonly BRAND = BRAND;
   readonly submitted = signal(false);
+  readonly sending = signal(false);
+  readonly error = signal('');
 
   form = {
     name: '',
@@ -149,7 +168,8 @@ export class BecomeTrainerComponent {
     expertise: '',
     experience: '1-3',
     topics: '',
-    bio: ''
+    bio: '',
+    consent: false
   };
 
   readonly benefits = [
@@ -161,6 +181,47 @@ export class BecomeTrainerComponent {
   ];
 
   onSubmit(): void {
-    this.submitted.set(true);
+    if (this.sending() || !this.form.consent) return;
+    this.error.set('');
+    this.sending.set(true);
+
+    const message = [
+      `Area of expertise: ${this.form.expertise.trim()}`,
+      `Years of experience: ${this.form.experience}`,
+      this.form.topics.trim() ? `Topics: ${this.form.topics.trim()}` : null,
+      this.form.bio.trim() ? `Bio: ${this.form.bio.trim()}` : null
+    ]
+      .filter(Boolean)
+      .join('\n\n');
+
+    this.contact
+      .submit({
+        name: this.form.name.trim(),
+        email: this.form.email.trim(),
+        phone: this.form.phone.trim() || undefined,
+        type: 'trainer',
+        subject: 'Trainer registration application',
+        message,
+        consent: true,
+        data: {
+          expertise: this.form.expertise.trim(),
+          experience: this.form.experience,
+          topics: this.form.topics.trim() || null,
+          bio: this.form.bio.trim() || null
+        }
+      })
+      .subscribe({
+        next: () => {
+          this.sending.set(false);
+          this.submitted.set(true);
+        },
+        error: (err) => {
+          this.sending.set(false);
+          this.error.set(
+            err?.error?.message ||
+              'Unable to submit your application. Please try again or email sales@elevateskills.online.'
+          );
+        }
+      });
   }
 }

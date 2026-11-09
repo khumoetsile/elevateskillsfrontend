@@ -13,6 +13,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 import { CourseCardComponent } from '../../components/course-card/course-card.component';
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
+import { PageHeroComponent } from '../../components/page-hero/page-hero.component';
 import { BRAND } from '../../config/brand.constants';
 import { CourseService } from '../../services/course.service';
 import { CourseLevel } from '../../models/course.model';
@@ -20,33 +21,24 @@ import { CourseLevel } from '../../models/course.model';
 @Component({
   selector: 'es-browse-courses',
   standalone: true,
-  imports: [AsyncPipe, FormsModule, CourseCardComponent, LoadingSpinnerComponent],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    CourseCardComponent,
+    LoadingSpinnerComponent,
+    PageHeroComponent
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="page-hero">
-      <div class="container-xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-        <div>
-          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide ring-1 ring-white/20">
-            Course Catalog
-          </span>
-          <h1 class="mt-3 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
-            Browse our online courses
-          </h1>
-          <p class="mt-2 text-brand-100 max-w-xl leading-relaxed text-sm sm:text-base">
-            Practical training across business, digital, finance, entrepreneurship,
-            and personal development.
-          </p>
-        </div>
-        <div class="aspect-[16/10] max-h-52 lg:max-h-60 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/20">
-          <img
-            [src]="BRAND.heroCourses"
-            alt="Learners collaborating on practical online skills training"
-            class="w-full h-full object-cover"
-            decoding="async"
-          />
-        </div>
-      </div>
-    </section>
+    <es-page-hero
+      eyebrow="Course Catalog"
+      title="Browse our online courses"
+      description="Practical training across business, digital, finance, entrepreneurship, and personal development."
+      [imageSrc]="BRAND.heroCourses"
+      imageAlt="Learners collaborating on practical online skills training"
+      statValue="100%"
+      statLabel="Online and flexible learning"
+    ></es-page-hero>
 
     <section class="py-7 sm:py-9 bg-brand-50">
       <div class="container-xl">

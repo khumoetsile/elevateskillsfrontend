@@ -4,14 +4,18 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment';
 
-export type ContactEnquiryType = 'general' | 'learner' | 'corporate' | 'trainer';
+export type ContactEnquiryType = 'general' | 'learner' | 'corporate' | 'trainer' | 'demo';
 
 export interface ContactPayload {
   name: string;
   email: string;
   phone?: string;
+  company?: string;
   type: ContactEnquiryType;
   message: string;
+  subject?: string;
+  consent?: boolean;
+  data?: Record<string, unknown>;
 }
 
 @Injectable({ providedIn: 'root' })

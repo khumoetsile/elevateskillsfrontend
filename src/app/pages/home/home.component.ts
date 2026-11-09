@@ -9,7 +9,7 @@ import { TestimonialComponent } from '../../components/testimonial/testimonial.c
 import { LoadingSpinnerComponent } from '../../components/loading-spinner/loading-spinner.component';
 import { BRAND } from '../../config/brand.constants';
 import { CourseService } from '../../services/course.service';
-import { RegisterInterestService } from '../../services/register-interest.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'es-home',
@@ -237,8 +237,8 @@ import { RegisterInterestService } from '../../services/register-interest.servic
               across departments, teams, and onboarding groups.
             </p>
             <div class="mt-4 flex flex-wrap gap-3">
-              <a routerLink="/for-business" class="btn-primary bg-white !text-brand-800 hover:!bg-brand-50">
-                Request Corporate Solution
+              <a routerLink="/for-business" fragment="enquiry" class="btn-primary bg-white !text-brand-800 hover:!bg-brand-50">
+                Request Demo
               </a>
               <a routerLink="/contact" class="btn-outline-white">
                 Talk to our team
@@ -320,12 +320,14 @@ import { RegisterInterestService } from '../../services/register-interest.servic
             <a routerLink="/courses" class="btn-primary bg-white !text-brand-800 hover:!bg-brand-50">
               Browse Courses
             </a>
-            <button type="button" class="btn-outline-white" (click)="openRegister()">
-              Register
-            </button>
-            <button type="button" class="btn-outline-white" (click)="openLogin()">
-              Login
-            </button>
+            @if (auth.user()) {
+              <button type="button" class="btn-outline-white" (click)="auth.openLearnerPortal()">
+                My learning
+              </button>
+            } @else {
+              <a routerLink="/register" class="btn-outline-white">Register</a>
+              <a routerLink="/login" class="btn-outline-white">Login</a>
+            }
             <a routerLink="/for-business" class="btn-outline-white">
               For Corporates
             </a>
@@ -337,21 +339,13 @@ import { RegisterInterestService } from '../../services/register-interest.servic
 })
 export class HomeComponent {
   private readonly courseService = inject(CourseService);
-  private readonly interest = inject(RegisterInterestService);
+  readonly auth = inject(AuthService);
 
   readonly BRAND = BRAND;
   readonly featured$ = this.courseService.getFeaturedCourses(8);
   readonly categories$ = this.courseService.getCategories();
   readonly catalogLoading$ = this.courseService.catalogLoading$;
   readonly testimonials$ = this.courseService.getTestimonials();
-
-  openRegister(): void {
-    this.interest.open({ intent: 'register' });
-  }
-
-  openLogin(): void {
-    this.interest.open({ intent: 'login' });
-  }
 
   readonly audiences = [
     {

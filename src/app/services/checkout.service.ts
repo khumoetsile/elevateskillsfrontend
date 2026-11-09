@@ -11,21 +11,35 @@ export interface CheckoutPayload {
   email: string;
   phone?: string;
   consent: boolean;
+  accountMode?: 'new' | 'existing';
   /** Dev fallback only — used when the backend cannot verify the course with TalentLMS. */
   courseName?: string;
   coursePrice?: string;
+}
+
+export interface AccountLookupResponse {
+  ok: boolean;
+  exists?: boolean;
+  message?: string;
+  account?: {
+    email: string;
+    first_name: string;
+    last_name: string;
+    login: string | null;
+  };
 }
 
 export interface CheckoutCreateResponse {
   ok: boolean;
   order_id: string;
   order_number: string;
-  token: string;
+  token?: string;
   payment_url: string;
   amount: number;
   currency: string;
   course_name: string;
   message?: string;
+  code?: string;
 }
 
 export interface OrderView {
@@ -67,6 +81,10 @@ export interface OrderResponse {
 export class CheckoutService {
   private readonly http = inject(HttpClient);
 
+  lookupAccount(email: string): Observable<AccountLookupResponse> {
+    return this.http.post<AccountLookupResponse>(environment.api.checkoutLookup, { email });
+  }
+
   createOrder(payload: CheckoutPayload): Observable<CheckoutCreateResponse> {
     return this.http.post<CheckoutCreateResponse>(environment.api.checkoutCreate, payload);
   }
@@ -75,6 +93,13 @@ export class CheckoutService {
     return this.http.get<OrderResponse>(
       `${environment.api.checkoutOrders}/${encodeURIComponent(orderId)}`,
       { params: { token } }
+    );
+  }
+
+  verifyDpoPayment(orderId: string, token: string): Observable<OrderResponse> {
+    return this.http.post<OrderResponse>(
+      `${environment.api.checkoutOrders}/${encodeURIComponent(orderId)}/verify-payment`,
+      { token }
     );
   }
 
